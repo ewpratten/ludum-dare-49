@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 cgmath = "0.18"
+discord-sdk = "0.1"
