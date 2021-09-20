@@ -16,6 +16,7 @@ thiserror = "1.0"
 chrono = "0.4"
 rust-embed = "6.2.0"
 raylib = "3.5"
+# cgmath = "0.18"
 
 [profile.release]
 lto = true
