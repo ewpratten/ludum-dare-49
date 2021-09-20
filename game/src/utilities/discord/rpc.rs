@@ -1,6 +1,11 @@
 //! Discord Rich Presence utilities
 
-use discord_sdk::{user::User, wheel::Wheel, Discord, DiscordApp, Subscriptions};
+use discord_sdk::{
+    activity::{Activity, ActivityBuilder},
+    user::User,
+    wheel::Wheel,
+    Discord, DiscordApp, Subscriptions,
+};
 use tracing::info;
 
 #[derive(Debug, Error)]
@@ -9,8 +14,11 @@ pub enum DiscordError {
     SdkError(#[from] discord_sdk::Error),
     #[error(transparent)]
     AwaitConnectionError(#[from] tokio::sync::watch::error::RecvError),
+    #[error("Could not connect")]
+    ConnectionError,
 }
 
+/// The client wrapper for Discord RPC
 pub struct DiscordRpcClient {
     pub discord: Discord,
     pub user: User,
@@ -18,6 +26,7 @@ pub struct DiscordRpcClient {
 }
 
 impl DiscordRpcClient {
+    /// Creates a new DiscordRpcClient
     pub async fn new(app_id: i64, subscriptions: Subscriptions) -> Result<Self, DiscordError> {
         // Create a new wheel
         let (wheel, handler) = Wheel::new(Box::new(|err| {
@@ -40,7 +49,7 @@ impl DiscordRpcClient {
         // Fetch the final user object
         let user = match &*user.0.borrow() {
             discord_sdk::wheel::UserState::Connected(u) => Ok(u.clone()),
-            discord_sdk::wheel::UserState::Disconnected(err) => Err(err),
+            discord_sdk::wheel::UserState::Disconnected(_) => Err(DiscordError::ConnectionError),
         }?;
 
         Ok(Self {
@@ -48,5 +57,20 @@ impl DiscordRpcClient {
             user,
             wheel,
         })
+    }
+
+    /// Clears the user rich presence
+    pub async fn clear_rich_presence(&self) -> Result<Option<Activity>, discord_sdk::Error> {
+        self.discord
+            .update_activity(ActivityBuilder::default())
+            .await
+    }
+
+    /// Sets the user rich presence
+    pub async fn set_rich_presence(
+        &self,
+        activity: ActivityBuilder,
+    ) -> Result<Option<Activity>, discord_sdk::Error> {
+        self.discord.update_activity(activity).await
     }
 }

@@ -1,9 +1,10 @@
 use game::game_begin;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // Enable logging
     tracing_subscriber::fmt::init();
 
     // Start the game
-    game_begin();
+    game_begin().await;
 }

@@ -8,12 +8,14 @@ edition = "2018"
 [dependencies]
 cgmath = "0.18"
 discord-sdk = "0.1"
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.0", features = ["macros"] }
 tracing = { version = "0.1", features = ["log"] }
 serde = { version = "1.0.126", features = ["derive"] }
 serde_json = "1.0.64"
 thiserror = "1.0"
 chrono = "0.4"
+rust-embed = "6.2.0"
+raylib = "3.5"
 
 [profile.release]
 lto = true
