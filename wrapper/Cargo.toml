@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 game =  { version = "0.1", path = "../game"}
+tracing-subscriber = "0.2"
