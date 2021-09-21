@@ -61,6 +61,7 @@ impl DiscordRpcClient {
 
     /// Clears the user rich presence
     pub async fn clear_rich_presence(&self) -> Result<Option<Activity>, discord_sdk::Error> {
+        puffin::profile_function!();
         self.discord
             .update_activity(ActivityBuilder::default())
             .await
@@ -71,6 +72,7 @@ impl DiscordRpcClient {
         &self,
         activity: ActivityBuilder,
     ) -> Result<Option<Activity>, discord_sdk::Error> {
+        puffin::profile_function!();
         self.discord.update_activity(activity).await
     }
 }

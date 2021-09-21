@@ -28,6 +28,7 @@ impl DynScreenTexture {
         raylib: &mut RaylibHandle,
         thread: &RaylibThread,
     ) -> Result<(), String> {
+        puffin::profile_function!();
         // Check if the window has been resized
         if self.texture.width() != raylib.get_screen_width()
             || self.texture.height() != raylib.get_screen_height()
@@ -40,6 +41,7 @@ impl DynScreenTexture {
         }
         Ok(())
     }
+
 }
 
 impl Deref for DynScreenTexture {
