@@ -1,5 +1,6 @@
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
+use shaders::util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture};
 use tracing::error;
 use utilities::{
     datastore::StaticGameData,
@@ -13,6 +14,7 @@ extern crate thiserror;
 #[macro_use]
 extern crate serde;
 
+mod shaders;
 mod utilities;
 
 /// The game entrypoint
@@ -54,19 +56,31 @@ pub async fn game_begin() {
         .resizable()
         .build();
 
+    // Create a dynamic texture to draw to for processing by shaders
+    let mut dynamic_texture =
+        DynScreenTexture::new(&mut rl, &thread).expect("Failed to allocate a screen texture");
+
     while !rl.window_should_close() {
+        dynamic_texture.update(&mut rl, &thread).unwrap();
         let mut d = rl.begin_drawing(&thread);
 
-        d.clear_background(Color::WHITE);
-        d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
+        render_to_texture(&mut dynamic_texture, || {
+            d.clear_background(Color::WHITE);
+            d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
 
-        let angle = (d.get_time() as f32 * 80.0).to_radians();
-        let screen_center = Vector2::new(d.get_screen_width() as f32 / 2.0, d.get_screen_height() as f32 / 2.0);
-        let top = rotate_vector(Vector2::new(0.0, -100.0), angle) + screen_center;
-        let right = rotate_vector(Vector2::new(100.0, 0.0), angle) + screen_center;
-        let left = rotate_vector(Vector2::new(-100.0, 0.0), angle) + screen_center;
+            let angle = (d.get_time() as f32 * 80.0).to_radians();
+            let screen_center = Vector2::new(
+                d.get_screen_width() as f32 / 2.0,
+                d.get_screen_height() as f32 / 2.0,
+            );
+            let top = rotate_vector(Vector2::new(0.0, -100.0), angle) + screen_center;
+            let right = rotate_vector(Vector2::new(100.0, 0.0), angle) + screen_center;
+            let left = rotate_vector(Vector2::new(-100.0, 0.0), angle) + screen_center;
 
-        d.draw_triangle(top, left, right, Color::BLACK);
-        d.draw_fps(10, 100);
+            d.draw_triangle(top, left, right, Color::BLACK);
+            d.draw_fps(10, 100);
+        });
+
+        
     }
 }
