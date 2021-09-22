@@ -62,7 +62,7 @@ pub async fn game_begin() {
     let (mut rl, thread) = raylib::init()
         .size(640, 480)
         .title(&game_config.name)
-        // .vsync()
+        .vsync()
         .msaa_4x()
         .resizable()
         .build();

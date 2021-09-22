@@ -114,6 +114,7 @@ impl ShaderWrapper {
     where
         S: ShaderV,
     {
+        puffin::profile_function!();
         if let Some(ptr) = self.variables.get(name) {
             self.shader.set_shader_value(*ptr, value);
             Ok(())
