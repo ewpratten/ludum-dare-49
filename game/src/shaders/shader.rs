@@ -1,8 +1,10 @@
-use std::{ffi::CString, str::Utf8Error, string::FromUtf8Error};
+use std::collections::HashMap;
+use std::{ffi::CString, string::FromUtf8Error};
 
 use raylib::color::Color;
 use raylib::math::Vector2;
 use raylib::prelude::RaylibTexture2D;
+use raylib::shaders::ShaderV;
 use raylib::{
     math::Rectangle,
     prelude::{RaylibDraw, RaylibShaderModeExt},
@@ -11,16 +13,21 @@ use raylib::{
     RaylibHandle, RaylibThread,
 };
 use rust_embed::EmbeddedFile;
-use tracing::info;
 
 #[derive(Debug, Error)]
 pub enum ShaderError {
     #[error(transparent)]
     UtfConversionError(#[from] FromUtf8Error),
+    #[error(transparent)]
+    ShaderVarNameNulError(#[from] std::ffi::NulError),
+    #[error("Shader variable name not valid: {0}")]
+    ShaderVarNameError(String),
 }
 
+/// Utility wrapper around shader FFI
 pub struct ShaderWrapper {
     shader: Shader,
+    variables: HashMap<String, i32>,
 }
 
 impl ShaderWrapper {
@@ -28,39 +35,51 @@ impl ShaderWrapper {
     pub fn new(
         vertex_shader: Option<EmbeddedFile>,
         fragment_shader: Option<EmbeddedFile>,
+        variable_names: Vec<&str>,
         raylib: &mut RaylibHandle,
         thread: &RaylibThread,
     ) -> Result<Self, ShaderError> {
+        // Load shader code from files
         let vertex_shader_code = vertex_shader.map(|file| String::from_utf8(file.data.to_vec()));
         let fragment_shader_code =
             fragment_shader.map(|file| String::from_utf8(file.data.to_vec()));
 
-        Ok(Self {
-            shader: load_shader_from_heap(
-                raylib,
-                &thread,
-                match vertex_shader_code {
-                    Some(result) => match result {
-                        Ok(code) => Some(code),
-                        Err(err) => return Err(ShaderError::UtfConversionError(err)),
-                    },
-                    None => None,
+        // Create shader
+        let shader = load_shader_from_heap(
+            raylib,
+            &thread,
+            match vertex_shader_code {
+                Some(result) => match result {
+                    Ok(code) => Some(code),
+                    Err(err) => return Err(ShaderError::UtfConversionError(err)),
                 },
-                match fragment_shader_code {
-                    Some(result) => match result {
-                        Ok(code) => Some(code),
-                        Err(err) => return Err(ShaderError::UtfConversionError(err)),
-                    },
-                    None => None,
+                None => None,
+            },
+            match fragment_shader_code {
+                Some(result) => match result {
+                    Ok(code) => Some(code),
+                    Err(err) => return Err(ShaderError::UtfConversionError(err)),
                 },
-            ),
-        })
+                None => None,
+            },
+        );
+
+        // Create connections between CPU and GPU
+        let mut variables = HashMap::new();
+        for variable_name in variable_names {
+            variables.insert(variable_name.to_string(), unsafe {
+                raylib::ffi::GetShaderLocation(*shader, CString::new(variable_name)?.as_ptr())
+            });
+        }
+
+        Ok(Self { shader, variables })
     }
 
+    /// Handles rendering a texture to the screen via the shader. If run inside another shader context, this *should* chain with it.
     pub fn process_texture_and_render<H>(
         &self,
         raylib: &mut H,
-        thread: &RaylibThread,
+        _thread: &RaylibThread,
         texture: &RenderTexture2D,
     ) where
         H: RaylibShaderModeExt + RaylibDraw,
@@ -88,6 +107,19 @@ impl ShaderWrapper {
             0.0,
             Color::WHITE,
         );
+    }
+
+    /// Set a variable in the shader.
+    pub fn set_variable<S>(&mut self, name: &str, value: S) -> Result<(), ShaderError>
+    where
+        S: ShaderV,
+    {
+        if let Some(ptr) = self.variables.get(name) {
+            self.shader.set_shader_value(*ptr, value);
+            Ok(())
+        } else {
+            Err(ShaderError::ShaderVarNameError(name.to_string()))
+        }
     }
 }
 

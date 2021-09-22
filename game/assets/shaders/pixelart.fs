@@ -7,12 +7,10 @@ in vec4 fragColor;
 // Input uniform values
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
+uniform vec2 viewport;
 
 // Output fragment color
 out vec4 finalColor;
-
-// Viewport dimensions
-const vec2 viewport = vec2(1080.0, 720.0);
 
 // Pixel scaling
 const vec2 pixelScale = vec2(2.0, 2.0);

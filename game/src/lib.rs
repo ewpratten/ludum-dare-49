@@ -31,8 +31,9 @@ pub async fn game_begin() {
     // Set up profiling
     // #[cfg(debug_assertions)]
     // {
-        let _puffin_server = puffin_http::Server::new(&format!("0.0.0.0:{}", puffin_http::DEFAULT_PORT)).unwrap();
-        puffin::set_scopes_on(true);
+    let _puffin_server =
+        puffin_http::Server::new(&format!("0.0.0.0:{}", puffin_http::DEFAULT_PORT)).unwrap();
+    puffin::set_scopes_on(true);
     // }
 
     // Attempt to connect to a locally running Discord instance for rich presence access
@@ -73,9 +74,10 @@ pub async fn game_begin() {
 
     // Load the pixel art shader
     info!("Loading the pixel art shader");
-    let pixel_shader = ShaderWrapper::new(
+    let mut pixel_shader = ShaderWrapper::new(
         None,
         Some(StaticGameData::get("shaders/pixelart.fs")).expect("Failed to load pixelart.fs"),
+        vec!["viewport"],
         &mut rl,
         &thread,
     )
@@ -87,6 +89,9 @@ pub async fn game_begin() {
         puffin::GlobalProfiler::lock().new_frame();
         dynamic_texture.update(&mut rl, &thread).unwrap();
         let mut d = rl.begin_drawing(&thread);
+        let screen_size = Vector2::new(d.get_screen_width() as f32, d.get_screen_height() as f32);
+
+        pixel_shader.set_variable("viewport", screen_size).unwrap();
 
         render_to_texture(&mut dynamic_texture, || {
             puffin::profile_scope!("internal_shaded_render");
