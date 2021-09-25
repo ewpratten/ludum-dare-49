@@ -1,0 +1,2 @@
+[target.x86_64-unknown-linux-gnu]
+image = "ldjam_49_x86_64_unknown_linux_gnu_build_env"

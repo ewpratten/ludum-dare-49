@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "editorconfig.editorconfig",
+        "matklad.rust-analyzer",
+        "serayuzgur.crates",
+        "bungcip.better-toml",
+        "aaron-bond.better-comments",
+        "streetsidesoftware.code-spell-checker",
+        "codezombiech.gitignore",
+        "ionutvmi.path-autocomplete",
+        "ms-vsliveshare.vsliveshare"
+    ]
+}
