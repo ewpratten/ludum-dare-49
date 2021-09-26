@@ -1,10 +1,14 @@
 //! Contains the general configuration data for the game
+//! This data is immutable, and should only be edited by hand
 
 use rust_embed::EmbeddedFile;
 
+/// Defines one of the game's authors
 #[derive(Debug, Clone, Deserialize)]
 pub struct Author {
-    pub github: String,
+    pub name: String,
+    pub url: Option<String>,
+    pub roles: Vec<String>
 }
 
 #[derive(Debug, Clone, Deserialize)]

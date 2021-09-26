@@ -19,6 +19,7 @@ extern crate serde;
 
 mod shaders;
 mod utilities;
+mod gfx;
 
 /// The game entrypoint
 pub async fn game_begin() {
@@ -66,6 +67,7 @@ pub async fn game_begin() {
         .msaa_4x()
         .resizable()
         .build();
+    rl.set_exit_key(None);
 
     // Create a dynamic texture to draw to for processing by shaders
     info!("Allocating a resizable texture for the screen");

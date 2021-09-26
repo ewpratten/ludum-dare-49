@@ -2,7 +2,12 @@
     "name": "Unnamed game",
     "authors": [
         {
-            "github": "ewpratten"
+            "name": "Evan Pratten",
+            "url": "https://va3zza.com",
+            "roles": [
+                "Team Lead",
+                "Developer"
+            ]
         }
     ]
 }
