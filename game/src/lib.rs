@@ -1,9 +1,9 @@
+#![feature(derive_default_enum)]
+
+use std::cell::RefCell;
+
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
-use shaders::{
-    shader::ShaderWrapper,
-    util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
-};
 use tracing::{error, info};
 use utilities::{
     datastore::StaticGameData,
@@ -12,14 +12,24 @@ use utilities::{
     math::rotate_vector,
 };
 
+use crate::{
+    context::GameContext,
+    scenes::{build_screen_state_machine, RenderContext},
+    utilities::shaders::{
+        shader::ShaderWrapper,
+        util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
+    },
+};
+
 #[macro_use]
 extern crate thiserror;
 #[macro_use]
 extern crate serde;
 
-mod shaders;
-mod utilities;
+mod context;
 mod gfx;
+mod scenes;
+mod utilities;
 
 /// The game entrypoint
 pub async fn game_begin() {
@@ -30,12 +40,10 @@ pub async fn game_begin() {
     .expect("Could not load general game config data");
 
     // Set up profiling
-    // #[cfg(debug_assertions)]
-    // {
+    #[cfg(debug_assertions)]
     let _puffin_server =
         puffin_http::Server::new(&format!("0.0.0.0:{}", puffin_http::DEFAULT_PORT)).unwrap();
     puffin::set_scopes_on(true);
-    // }
 
     // Attempt to connect to a locally running Discord instance for rich presence access
     let discord_config = DiscordConfig::load(
@@ -59,6 +67,13 @@ pub async fn game_begin() {
             .await
             .unwrap();
     }
+
+    // Get the main state machine
+    let mut game_state_machine =
+        build_screen_state_machine().expect("Could not init state main state machine");
+
+    // Build the game context
+    let mut context = RefCell::new(GameContext::new());
 
     let (mut rl, thread) = raylib::init()
         .size(640, 480)
@@ -87,32 +102,44 @@ pub async fn game_begin() {
 
     info!("Starting the render loop");
     while !rl.window_should_close() {
+        // Profile the main game loop
         puffin::profile_scope!("main_loop");
         puffin::GlobalProfiler::lock().new_frame();
+
+        // Update the GPU texture that we draw to. This handles screen resizing and some other stuff
         dynamic_texture.update(&mut rl, &thread).unwrap();
+
+        // Switch into draw mode
         let mut d = rl.begin_drawing(&thread);
+
+        // Fetch the screen size once to work with in render code
         let screen_size = Vector2::new(d.get_screen_width() as f32, d.get_screen_height() as f32);
 
+        // Update the pixel shader to correctly handle the screen size
         pixel_shader.set_variable("viewport", screen_size).unwrap();
 
-        render_to_texture(&mut dynamic_texture, || {
-            puffin::profile_scope!("internal_shaded_render");
-            d.clear_background(Color::WHITE);
-            d.draw_text("Hello, world!", 12, 12, 20, Color::BLACK);
+        // Build render context
+        {
+            let render_ctx = RefCell::new((RefCell::new(d), context));
 
-            let angle = (d.get_time() as f32 * 80.0).to_radians();
-            let screen_center = Vector2::new(
-                d.get_screen_width() as f32 / 2.0,
-                d.get_screen_height() as f32 / 2.0,
-            );
-            let top = rotate_vector(Vector2::new(0.0, -100.0), angle) + screen_center;
-            let right = rotate_vector(Vector2::new(100.0, 0.0), angle) + screen_center;
-            let left = rotate_vector(Vector2::new(-100.0, 0.0), angle) + screen_center;
+            // Render the game via the pixel shader
+            render_to_texture(&mut dynamic_texture, || {
+                // Profile the internal render code
+                puffin::profile_scope!("internal_shaded_render");
 
-            d.draw_triangle(top, left, right, Color::BLACK);
-            d.draw_fps(10, 100);
-        });
+                // Run a state machine iteration
+                let result = game_state_machine.run(&render_ctx);
 
+                if let Err(err) = result {
+                    error!("Main state machine encountered an error while running!");
+                    error!("Main thread crash!!");
+                    error!("Cannot recover from error");
+                    panic!("{:?}", err);
+                }
+            });
+        }
+
+        // Send the texture to the GPU to be drawn
         pixel_shader.process_texture_and_render(&mut d, &thread, &dynamic_texture);
     }
 }

@@ -18,6 +18,7 @@ rust-embed = "6.2.0"
 raylib = "3.5"
 puffin = "0.9"
 puffin_http = "0.6"
+dirty-fsm = "0.2"
 
 [dev-dependencies]
 puffin_viewer = "0.6"
