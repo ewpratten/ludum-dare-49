@@ -1,15 +1,12 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 use dirty_fsm::{Action, ActionFlag};
-use raylib::{
-    color::Color,
-    prelude::{RaylibDraw, RaylibDrawHandle},
-};
+use raylib::{color::Color, prelude::RaylibDraw, RaylibHandle};
 use tracing::{debug, error, info, trace};
 
-use crate::{context::GameContext, gfx::render_layer::ScreenSpaceRender};
+use crate::{gfx::render_layer::ScreenSpaceRender, utilities::non_ref_raylib::HackedRaylibHandle};
 
-use super::{RenderContext, Scenes, ScreenError};
+use super::{Scenes, ScreenError};
 
 #[derive(Debug)]
 pub struct FsmErrorScreen {}
@@ -21,16 +18,13 @@ impl FsmErrorScreen {
     }
 }
 
-impl<Rl> Action<Scenes, ScreenError, RefCell<(RefCell<Rl>, RefCell<GameContext>)>> for FsmErrorScreen
-where
-    Rl: RaylibDraw,
-{
+impl Action<Scenes, ScreenError, RefCell<HackedRaylibHandle>> for FsmErrorScreen {
     fn on_register(&mut self) -> Result<(), ScreenError> {
         debug!("Registered");
         Ok(())
     }
 
-    fn on_first_run(&mut self, context: &RefCell<(RefCell<Rl>, RefCell<GameContext>)>) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &RefCell<HackedRaylibHandle>) -> Result<(), ScreenError> {
         debug!("Running FsmErrorScreen for the first time");
         Ok(())
     }
@@ -38,9 +32,10 @@ where
     fn execute(
         &mut self,
         delta: &chrono::Duration,
-        context: &RefCell<(RefCell<Rl>, RefCell<GameContext>)>,
+        context: &RefCell<HackedRaylibHandle>,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
-        trace!("execute() called on FsmErrorScreen, but we have not logic");
+        trace!("execute() called on FsmErrorScreen");
+        self.render_screen_space(&mut context.borrow_mut());
         Ok(ActionFlag::Continue)
     }
 
@@ -51,7 +46,7 @@ where
 }
 
 impl ScreenSpaceRender for FsmErrorScreen {
-    fn render_screen_space(&self, raylib: &mut raylib::prelude::RaylibDrawHandle) {
+    fn render_screen_space(&self, raylib: &mut HackedRaylibHandle) {
         raylib.clear_background(Color::RED);
 
         // Render a warning message

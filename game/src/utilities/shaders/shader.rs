@@ -14,6 +14,8 @@ use raylib::{
 };
 use rust_embed::EmbeddedFile;
 
+use crate::utilities::non_ref_raylib::HackedRaylibHandle;
+
 #[derive(Debug, Error)]
 pub enum ShaderError {
     #[error(transparent)]
@@ -76,13 +78,12 @@ impl ShaderWrapper {
     }
 
     /// Handles rendering a texture to the screen via the shader. If run inside another shader context, this *should* chain with it.
-    pub fn process_texture_and_render<H>(
+    pub fn process_texture_and_render(
         &self,
-        raylib: &mut H,
+        raylib: &mut HackedRaylibHandle,
         _thread: &RaylibThread,
         texture: &RenderTexture2D,
-    ) where
-        H: RaylibShaderModeExt + RaylibDraw,
+    )
     {
         puffin::profile_function!();
         // Create a shader context to work under
