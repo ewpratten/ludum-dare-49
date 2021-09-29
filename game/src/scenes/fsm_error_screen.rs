@@ -4,7 +4,7 @@ use dirty_fsm::{Action, ActionFlag};
 use raylib::{color::Color, prelude::RaylibDraw, RaylibHandle};
 use tracing::{debug, error, info, trace};
 
-use crate::{gfx::render_layer::ScreenSpaceRender, utilities::non_ref_raylib::HackedRaylibHandle};
+use crate::{context::GameContext, gfx::render_layer::ScreenSpaceRender, utilities::non_ref_raylib::HackedRaylibHandle};
 
 use super::{Scenes, ScreenError};
 
@@ -18,13 +18,13 @@ impl FsmErrorScreen {
     }
 }
 
-impl Action<Scenes, ScreenError, RefCell<HackedRaylibHandle>> for FsmErrorScreen {
+impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
     fn on_register(&mut self) -> Result<(), ScreenError> {
         debug!("Registered");
         Ok(())
     }
 
-    fn on_first_run(&mut self, context: &RefCell<HackedRaylibHandle>) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running FsmErrorScreen for the first time");
         Ok(())
     }
@@ -32,10 +32,10 @@ impl Action<Scenes, ScreenError, RefCell<HackedRaylibHandle>> for FsmErrorScreen
     fn execute(
         &mut self,
         delta: &chrono::Duration,
-        context: &RefCell<HackedRaylibHandle>,
+        context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on FsmErrorScreen");
-        self.render_screen_space(&mut context.borrow_mut());
+        self.render_screen_space(&mut context.renderer.borrow_mut());
         Ok(ActionFlag::Continue)
     }
 

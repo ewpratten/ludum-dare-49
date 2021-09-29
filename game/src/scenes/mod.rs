@@ -35,7 +35,7 @@ pub enum ScreenError {}
 /// Build the state machine for all scenes
 pub fn build_screen_state_machine() -> Result<
     // StateMachine<Scenes, ScreenError, RefCell<(NonRefDrawHandle, Rc<RefCell<GameContext>>)>>,
-    StateMachine<Scenes, ScreenError, RefCell<HackedRaylibHandle>>,
+    StateMachine<Scenes, ScreenError, GameContext>,
     ScreenError,
 > {
     let mut machine = StateMachine::new();

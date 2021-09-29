@@ -81,12 +81,10 @@ pub async fn game_begin() {
     let mut game_state_machine =
         build_screen_state_machine().expect("Could not init state main state machine");
 
-    // Build the game context
-    let mut context = Rc::new(RefCell::new(GameContext::new()));
-
-    let mut raylib_handle: RefCell<HackedRaylibHandle>;
-    let raylib_thread;
+    let mut context;
+    let mut raylib_thread;
     {
+        // Set up FFI access to raylib
         let (mut rl, thread) = raylib::init()
             .size(640, 480)
             .title(&game_config.name)
@@ -95,14 +93,16 @@ pub async fn game_begin() {
             .resizable()
             .build();
         rl.set_exit_key(None);
-        raylib_handle = RefCell::new(rl.into());
         raylib_thread = thread;
+
+        // Build the game context
+        context = Box::new(GameContext::new(RefCell::new(rl.into())));
     }
 
     // Create a dynamic texture to draw to for processing by shaders
     info!("Allocating a resizable texture for the screen");
     let mut dynamic_texture =
-        DynScreenTexture::new(&mut raylib_handle.borrow_mut(), &raylib_thread)
+        DynScreenTexture::new(&mut context.renderer.borrow_mut(), &raylib_thread)
             .expect("Failed to allocate a screen texture");
 
     // Load the pixel art shader
@@ -111,20 +111,20 @@ pub async fn game_begin() {
         None,
         Some(StaticGameData::get("shaders/pixelart.fs")).expect("Failed to load pixelart.fs"),
         vec!["viewport"],
-        &mut raylib_handle.borrow_mut(),
+        &mut context.renderer.borrow_mut(),
         &raylib_thread,
     )
     .unwrap();
 
     info!("Starting the render loop");
-    while !raylib_handle.borrow().window_should_close() {
+    while !context.renderer.borrow().window_should_close() {
         // Profile the main game loop
         puffin::profile_scope!("main_loop");
         puffin::GlobalProfiler::lock().new_frame();
 
         // Update the GPU texture that we draw to. This handles screen resizing and some other stuff
         dynamic_texture
-            .update(&mut raylib_handle.borrow_mut(), &raylib_thread)
+            .update(&mut context.renderer.borrow_mut(), &raylib_thread)
             .unwrap();
 
         // Switch into draw mode (using unsafe code here to avoid borrow checker hell)
@@ -135,8 +135,8 @@ pub async fn game_begin() {
 
         // Fetch the screen size once to work with in render code
         let screen_size = Vector2::new(
-            raylib_handle.borrow().get_screen_width() as f32,
-            raylib_handle.borrow().get_screen_height() as f32,
+            context.renderer.borrow().get_screen_width() as f32,
+            context.renderer.borrow().get_screen_height() as f32,
         );
 
         // Update the pixel shader to correctly handle the screen size
@@ -148,7 +148,8 @@ pub async fn game_begin() {
             puffin::profile_scope!("internal_shaded_render");
 
             // Run a state machine iteration
-            let result = game_state_machine.run(&raylib_handle);
+            // let x = (context.renderer, context);
+            let result = game_state_machine.run(&context);
 
             if let Err(err) = result {
                 error!("Main state machine encountered an error while running!");
@@ -160,7 +161,7 @@ pub async fn game_begin() {
 
         // Send the texture to the GPU to be drawn
         pixel_shader.process_texture_and_render(
-            &mut raylib_handle.borrow_mut(),
+            &mut context.renderer.borrow_mut(),
             &raylib_thread,
             &dynamic_texture,
         );

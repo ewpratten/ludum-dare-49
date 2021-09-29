@@ -2,6 +2,8 @@ use std::{borrow::Borrow, cell::{Cell, RefCell, RefMut}, ops::{Deref, DerefMut},
 
 use raylib::{prelude::RaylibDraw, RaylibHandle};
 
+
+#[derive(Debug)]
 pub struct HackedRaylibHandle(RaylibHandle);
 
 impl RaylibDraw for HackedRaylibHandle {}
