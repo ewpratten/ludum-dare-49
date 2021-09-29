@@ -1,24 +1,9 @@
-use std::{
-    borrow::Borrow,
-    cell::{Cell, RefCell, RefMut},
-    rc::Rc,
-};
-
-use dirty_fsm::{Action, StateMachine};
-use raylib::{
-    prelude::{RaylibDraw, RaylibDrawHandle},
-    RaylibHandle,
-};
-
-use crate::{context::GameContext, gfx::render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender}, utilities::non_ref_raylib::HackedRaylibHandle};
-
-use self::fsm_error_screen::FsmErrorScreen;
+use dirty_fsm::StateMachine;
+use crate::context::GameContext;
+use self::{fsm_error_screen::FsmErrorScreen, loading_screen::LoadingScreen};
 
 pub mod fsm_error_screen;
-// pub mod loading_screen;
-
-/// Data passed to all scenes upon render
-// pub type RenderContext<'a, 'b> = (&'b mut RaylibDrawHandle<'a>, &'b mut GameContext);
+pub mod loading_screen;
 
 /// Defines all scenes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
@@ -40,5 +25,6 @@ pub fn build_screen_state_machine() -> Result<
 > {
     let mut machine = StateMachine::new();
     machine.add_action(Scenes::FsmErrorScreen, FsmErrorScreen::new())?;
+    machine.add_action(Scenes::LoadingScreen, LoadingScreen::new())?;
     Ok(machine)
 }
