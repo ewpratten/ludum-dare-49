@@ -21,9 +21,9 @@ jobs:
       - name: Install Raylib deps
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev -y
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
+      # - uses: actions-rs/toolchain@v1
+      #   with:
+      #     toolchain: stable
       - uses: actions-rs/cargo@v1
         with:
           command: build
