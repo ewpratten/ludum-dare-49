@@ -75,10 +75,15 @@ use raylib::prelude::*;
 use tracing::{error, info};
 use utilities::discord::DiscordConfig;
 
-use crate::{context::GameContext, discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord}, scenes::{Scenes, build_screen_state_machine}, utilities::shaders::{
+use crate::{
+    context::GameContext,
+    discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
+    scenes::{build_screen_state_machine, Scenes},
+    utilities::shaders::{
         shader::ShaderWrapper,
         util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
-    }};
+    },
+};
 
 #[macro_use]
 extern crate thiserror;
@@ -124,10 +129,6 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     .await
     .unwrap();
 
-    // Get the main state machine
-    let mut game_state_machine = build_screen_state_machine().unwrap();
-    game_state_machine.force_change_state(Scenes::LoadingScreen).unwrap();
-
     let context;
     let raylib_thread;
     {
@@ -148,6 +149,14 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         // Build the game context
         context = Box::new(GameContext::new(RefCell::new(rl.into())));
     }
+
+    // Get the main state machine
+    info!("Setting up the scene management state machine");
+    let mut game_state_machine =
+        build_screen_state_machine(&context.renderer.borrow_mut(), &raylib_thread).unwrap();
+    game_state_machine
+        .force_change_state(Scenes::LoadingScreen)
+        .unwrap();
 
     // Create a dynamic texture to draw to for processing by shaders
     info!("Allocating a SNOWZ7Zresizable texture for the screen");

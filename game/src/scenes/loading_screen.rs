@@ -1,7 +1,11 @@
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use raylib::RaylibThread;
 
-use crate::{context::GameContext, utilities::render_layer::ScreenSpaceRender};
+use crate::{
+    context::GameContext,
+    utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender},
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -16,7 +20,13 @@ pub struct LoadingScreen {
 
 impl LoadingScreen {
     /// Construct a new `LoadingScreen`
-    pub fn new() -> Self {
+    pub fn new(raylib_handle: &HackedRaylibHandle, thread: &RaylibThread) -> Self {
+
+        // Load the game logo asset
+        // TODO: in-memory texture loading
+        // raylib_handle.load_texture_from_image(, image)
+
+
         Self {
             start_timestamp: None,
         }
@@ -78,8 +88,5 @@ impl ScreenSpaceRender for LoadingScreen {
 
         // Calculate the loading screen fade in/out value
         // This makes the loading screen fade in/out over the duration of the loading screen
-
-
-
     }
 }
