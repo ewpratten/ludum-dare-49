@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 cgmath = "0.18"
-discord-sdk = { version = "0.2.1", git = "https://github.com/EmbarkStudios/discord-sdk", branch = "main", commit = "3ed27a06c71d88269c7ac29cf5151cfb7f24f0ef" }
+discord-sdk = { version = "0.2.1", git = "https://github.com/EmbarkStudios/discord-sdk", rev = "2c56fe530120487d21bcd307bdf2e1055ce0ad48" }
 tokio = { version = "1.0", features = ["macros"] }
 tracing = { version = "0.1", features = ["log"] }
 serde = { version = "1.0.126", features = ["derive"] }
@@ -24,8 +24,3 @@ sentry = "0.23"
 
 [dev-dependencies]
 puffin_viewer = "0.6"
-
-
-[profile.release]
-lto = true
-codegen-units = 1

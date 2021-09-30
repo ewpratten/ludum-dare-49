@@ -1,9 +1,10 @@
 use std::ops::Range;
 
-use num_traits::{real::Real, Float};
+use num_traits::{Float};
 use raylib::math::Vector2;
 
 /// Rotate a vector by an angle
+#[allow(dead_code)]
 pub fn rotate_vector(vector: Vector2, angle_rad: f32) -> Vector2 {
     Vector2 {
         x: (vector.x * angle_rad.cos()) - (vector.y * angle_rad.sin()),
@@ -12,6 +13,7 @@ pub fn rotate_vector(vector: Vector2, angle_rad: f32) -> Vector2 {
 }
 
 /// Interpolate a value from an input range to an output range while being modified by an exponential curve. **Input value is not checked**
+#[allow(dead_code)]
 pub fn interpolate_exp_unchecked<T>(
     value: T,
     input_range: Range<T>,
@@ -32,6 +34,7 @@ where
 }
 
 /// Interpolate a value from an input range to an output range while being modified by an exponential curve. **Input value is clamped**
+#[allow(dead_code)]
 pub fn interpolate_exp<T>(value: T, input_range: Range<T>, output_range: Range<T>, exp: T) -> T
 where
     T: Float,

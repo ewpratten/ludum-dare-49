@@ -112,7 +112,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     let discord_rpc = match try_connect_to_local_discord(&discord_config).await {
         Ok(client) => Some(client),
         Err(err) => match err {
-            utilities::discord::rpc::DiscordError::ConnectionTimeoutError(time) => {
+            utilities::discord::rpc::DiscordError::ConnectionTimeout(time) => {
                 error!(
                     "Could not find or connect to a local Discord instance after {} seconds",
                     time

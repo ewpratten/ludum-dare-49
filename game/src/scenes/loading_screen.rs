@@ -15,7 +15,7 @@ pub struct LoadingScreen {
 }
 
 impl LoadingScreen {
-    /// Construct a new LoadingScreen
+    /// Construct a new `LoadingScreen`
     pub fn new() -> Self {
         Self {
             start_timestamp: None,

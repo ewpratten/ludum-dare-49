@@ -15,7 +15,7 @@ use super::{Scenes, ScreenError};
 pub struct FsmErrorScreen {}
 
 impl FsmErrorScreen {
-    /// Construct a new FsmErrorScreen
+    /// Construct a new `FsmErrorScreen`
     pub fn new() -> Self {
         Self {}
     }
@@ -59,6 +59,6 @@ impl ScreenSpaceRender for FsmErrorScreen {
             10,
             40,
             Color::WHITE,
-        )
+        );
     }
 }

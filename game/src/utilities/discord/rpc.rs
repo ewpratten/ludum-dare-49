@@ -6,19 +6,19 @@ use discord_sdk::{
     wheel::Wheel,
     Discord, DiscordApp, Subscriptions,
 };
-use tracing::info;
 use tokio::time::error::Elapsed;
+use tracing::info;
 
 #[derive(Debug, Error)]
 pub enum DiscordError {
     #[error(transparent)]
-    SdkError(#[from] discord_sdk::Error),
+    Sdk(#[from] discord_sdk::Error),
     #[error(transparent)]
-    AwaitConnectionError(#[from] tokio::sync::watch::error::RecvError),
+    AwaitConnection(#[from] tokio::sync::watch::error::RecvError),
     #[error("Could not connect")]
-    ConnectionError,
+    Connection,
     #[error(transparent)]
-    ConnectionTimeoutError(#[from] Elapsed)
+    ConnectionTimeout(#[from] Elapsed),
 }
 
 /// The client wrapper for Discord RPC
@@ -29,7 +29,7 @@ pub struct DiscordRpcClient {
 }
 
 impl DiscordRpcClient {
-    /// Creates a new DiscordRpcClient
+    /// Creates a new `DiscordRpcClient`
     pub async fn new(app_id: i64, subscriptions: Subscriptions) -> Result<Self, DiscordError> {
         // Create a new wheel
         let (wheel, handler) = Wheel::new(Box::new(|err| {
@@ -52,7 +52,7 @@ impl DiscordRpcClient {
         // Fetch the final user object
         let user = match &*user.0.borrow() {
             discord_sdk::wheel::UserState::Connected(u) => Ok(u.clone()),
-            discord_sdk::wheel::UserState::Disconnected(_) => Err(DiscordError::ConnectionError),
+            discord_sdk::wheel::UserState::Disconnected(_) => Err(DiscordError::Connection),
         }?;
 
         Ok(Self {
@@ -63,6 +63,7 @@ impl DiscordRpcClient {
     }
 
     /// Clears the user rich presence
+    #[allow(dead_code)]
     pub async fn clear_rich_presence(&self) -> Result<Option<Activity>, discord_sdk::Error> {
         puffin::profile_function!();
         self.discord
