@@ -73,7 +73,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
             let duration = Utc::now().signed_duration_since(start_timestamp);
             if duration.num_seconds() >= LOADING_SCREEN_DURATION_SECONDS as i64 {
                 info!("LoadingScreen duration reached, moving to next screen");
-                Ok(ActionFlag::SwitchState(Scenes::FsmErrorScreen))
+                Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
             } else {
                 Ok(ActionFlag::Continue)
             }

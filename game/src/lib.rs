@@ -1,5 +1,6 @@
-#![feature(plugin)]
 #![feature(derive_default_enum)]
+#![feature(custom_inner_attributes)]
+#![feature(stmt_expr_attributes)]
 #![deny(unsafe_code)]
 #![warn(
     clippy::all,
@@ -65,7 +66,6 @@
     nonstandard_style,
     rust_2018_idioms
 )]
-#![feature(custom_inner_attributes)]
 #![clippy::msrv = "1.57.0"]
 
 use std::cell::RefCell;

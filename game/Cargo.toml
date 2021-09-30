@@ -3,6 +3,7 @@ name = "game"
 publish = false
 version = "0.1.0"
 edition = "2018"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
@@ -24,6 +25,12 @@ sentry = "0.23"
 image = "0.23"
 tempfile = "3.2"
 approx = "0.5"
+pkg-version = "1.0"
+cfg-if = "1.0"
 
 [dev-dependencies]
 puffin_viewer = "0.6"
+
+[build-dependencies]
+vergen = "5"
+anyhow = "1.0"
