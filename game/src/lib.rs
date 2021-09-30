@@ -153,7 +153,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     // Get the main state machine
     info!("Setting up the scene management state machine");
     let mut game_state_machine =
-        build_screen_state_machine(&context.renderer.borrow_mut(), &raylib_thread).unwrap();
+        build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread).unwrap();
     game_state_machine
         .force_change_state(Scenes::LoadingScreen)
         .unwrap();

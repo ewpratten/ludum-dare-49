@@ -1,6 +1,6 @@
 use dirty_fsm::StateMachine;
 use raylib::RaylibThread;
-use crate::{context::GameContext, utilities::non_ref_raylib::HackedRaylibHandle};
+use crate::{context::GameContext, utilities::{datastore::ResourceLoadError, non_ref_raylib::HackedRaylibHandle}};
 use self::{fsm_error_screen::FsmErrorScreen, loading_screen::LoadingScreen};
 
 pub mod fsm_error_screen;
@@ -16,16 +16,19 @@ pub enum Scenes {
 
 /// Contains any possible errors thrown while rendering
 #[derive(Debug, Error)]
-pub enum ScreenError {}
+pub enum ScreenError {
+    #[error(transparent)]
+    ResourceLoad(#[from] ResourceLoadError)
+}
 
 /// Build the state machine for all scenes
-pub fn build_screen_state_machine(raylib_handle: &HackedRaylibHandle, thread: &RaylibThread) -> Result<
+pub fn build_screen_state_machine(raylib_handle: &mut HackedRaylibHandle, thread: &RaylibThread) -> Result<
     // StateMachine<Scenes, ScreenError, RefCell<(NonRefDrawHandle, Rc<RefCell<GameContext>>)>>,
     StateMachine<Scenes, ScreenError, GameContext>,
     ScreenError,
 > {
     let mut machine = StateMachine::new();
     machine.add_action(Scenes::FsmErrorScreen, FsmErrorScreen::new())?;
-    machine.add_action(Scenes::LoadingScreen, LoadingScreen::new(raylib_handle, thread))?;
+    machine.add_action(Scenes::LoadingScreen, LoadingScreen::new(raylib_handle, thread)?)?;
     Ok(machine)
 }

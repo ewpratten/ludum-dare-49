@@ -1,11 +1,8 @@
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
-use raylib::RaylibThread;
+use raylib::{RaylibThread, texture::Texture2D};
 
-use crate::{
-    context::GameContext,
-    utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender},
-};
+use crate::{context::GameContext, utilities::{datastore::{ResourceLoadError, load_texture_from_internal_data}, non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender}};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -16,20 +13,20 @@ const LOADING_SCREEN_DURATION_SECONDS: u8 = 3;
 #[derive(Debug)]
 pub struct LoadingScreen {
     start_timestamp: Option<DateTime<Utc>>,
+    game_logo_texture: Texture2D
 }
 
 impl LoadingScreen {
     /// Construct a new `LoadingScreen`
-    pub fn new(raylib_handle: &HackedRaylibHandle, thread: &RaylibThread) -> Self {
+    pub fn new(raylib_handle: &mut HackedRaylibHandle, thread: &RaylibThread) -> Result<Self, ResourceLoadError> {
 
         // Load the game logo asset
-        // TODO: in-memory texture loading
-        // raylib_handle.load_texture_from_image(, image)
+        let game_logo = load_texture_from_internal_data(raylib_handle, thread, "logos/game-logo.png")?;
 
-
-        Self {
+        Ok(Self {
             start_timestamp: None,
-        }
+            game_logo_texture: game_logo
+        })
     }
 }
 

@@ -12,6 +12,18 @@
 		},
 		{
 			"type": "cargo",
+			"command": "clippy",
+			"args": [
+				"--fix"
+			],
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "Rust: Clippy Fix"
+		},
+		{
+			"type": "cargo",
 			"command": "run",
 			"problemMatcher": [
 				"$rustc"

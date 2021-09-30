@@ -8,4 +8,4 @@
 # Make sure to check the build status before changing this
 # https://rust-lang.github.io/rustup-components-history/
 channel = "nightly-2021-09-30"
-components = ["clippy", "rustfmt"]
+# components = ["clippy", "rustfmt"]

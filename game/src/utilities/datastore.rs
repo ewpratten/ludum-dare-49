@@ -22,7 +22,7 @@ pub enum ResourceLoadError {
 }
 
 pub fn load_texture_from_internal_data(
-    raylib_handle: &RaylibHandle,
+    raylib_handle: &mut RaylibHandle,
     thread: &RaylibThread,
     path: &str,
 ) -> Result<Texture2D, ResourceLoadError> {
@@ -31,14 +31,14 @@ pub fn load_texture_from_internal_data(
 
     // Unpack the raw image data to a real file on the local filesystem so raylib will read it correctly
     std::fs::write(
-        tmp_path,
+        &tmp_path,
         &StaticGameData::get(path)
             .ok_or(ResourceLoadError::AssetNotFound(path.to_string()))?
             .data,
     )?;
 
     // Call through via FFI to re-load the file
-    let texture = raylib_handle.load_texture(thread, tmp_path.to_str().unwrap()).map_err(|e| ResourceLoadError::Generic(e));
+    let texture = raylib_handle.load_texture(thread, tmp_path.to_str().unwrap()).map_err(|e| ResourceLoadError::Generic(e))?;
 
     // Close the file
     tmp_path.close()?;

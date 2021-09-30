@@ -3,6 +3,5 @@
         "clippy",
         "raylib",
         "renderable"
-    ],
-    "rust-analyzer.checkOnSave.command": "clippy"
+    ]
 }
