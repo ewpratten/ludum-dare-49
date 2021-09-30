@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use raylib::{texture::Texture2D, RaylibHandle, RaylibThread};
-use tempfile::{tempfile, NamedTempFile};
+use tempfile::{NamedTempFile};
 
 /// Contains all game assets.
 ///
@@ -38,7 +38,7 @@ pub fn load_texture_from_internal_data(
     )?;
 
     // Call through via FFI to re-load the file
-    let texture = raylib_handle.load_texture(thread, tmp_path.to_str().unwrap()).map_err(|e| ResourceLoadError::Generic(e))?;
+    let texture = raylib_handle.load_texture(thread, tmp_path.to_str().unwrap()).map_err(ResourceLoadError::Generic)?;
 
     // Close the file
     tmp_path.close()?;
