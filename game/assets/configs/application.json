@@ -1,14 +1,5 @@
 {
     "name": "Unnamed game",
-    "authors": [
-        {
-            "name": "Evan Pratten",
-            "url": "https://va3zza.com",
-            "roles": [
-                "Team Lead",
-                "Developer"
-            ]
-        }
-    ],
+    "base_window_size": [1080, 720],
     "sentry_dsn": "https://d5d94e75f08841388287fa0c23606ac7@o398481.ingest.sentry.io/5985679"
 }

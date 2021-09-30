@@ -19,11 +19,11 @@ use crate::utilities::non_ref_raylib::HackedRaylibHandle;
 #[derive(Debug, Error)]
 pub enum ShaderError {
     #[error(transparent)]
-    UtfConversionError(#[from] FromUtf8Error),
+    UtfConversion(#[from] FromUtf8Error),
     #[error(transparent)]
-    ShaderVarNameNulError(#[from] std::ffi::NulError),
+    ShaderVarNameNul(#[from] std::ffi::NulError),
     #[error("Shader variable name not valid: {0}")]
-    ShaderVarNameError(String),
+    ShaderVarName(String),
 }
 
 /// Utility wrapper around shader FFI
@@ -53,14 +53,14 @@ impl ShaderWrapper {
             match vertex_shader_code {
                 Some(result) => match result {
                     Ok(code) => Some(code),
-                    Err(err) => return Err(ShaderError::UtfConversionError(err)),
+                    Err(err) => return Err(ShaderError::UtfConversion(err)),
                 },
                 None => None,
             },
             match fragment_shader_code {
                 Some(result) => match result {
                     Ok(code) => Some(code),
-                    Err(err) => return Err(ShaderError::UtfConversionError(err)),
+                    Err(err) => return Err(ShaderError::UtfConversion(err)),
                 },
                 None => None,
             },
@@ -123,7 +123,7 @@ impl ShaderWrapper {
             self.shader.set_shader_value(*ptr, value);
             Ok(())
         } else {
-            Err(ShaderError::ShaderVarNameError(name.to_string()))
+            Err(ShaderError::ShaderVarName(name.to_string()))
         }
     }
 }
@@ -135,9 +135,9 @@ fn load_shader_from_heap(
     vs: Option<String>,
     fs: Option<String>,
 ) -> Shader {
-    let vs_code = vs.unwrap_or(String::new());
+    let vs_code = vs.unwrap_or_default();
     let vs_code_str = vs_code.as_str();
-    let fs_code = fs.unwrap_or(String::new());
+    let fs_code = fs.unwrap_or_default();
     let fs_code_str = fs_code.as_str();
     handle.load_shader_code(
         thread,

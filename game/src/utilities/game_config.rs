@@ -14,7 +14,8 @@ pub struct Author {
 #[derive(Debug, Clone, Deserialize)]
 pub struct GameConfig {
     pub name: String,
-    pub authors: Vec<Author>,
+    // pub authors: Vec<Author>,
+    pub base_window_size: (i32, i32),
     pub sentry_dsn: String
 }
 

@@ -25,6 +25,7 @@ sentry = "0.23"
 [dev-dependencies]
 puffin_viewer = "0.6"
 
+
 [profile.release]
 lto = true
 codegen-units = 1

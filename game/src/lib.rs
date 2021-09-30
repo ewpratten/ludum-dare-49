@@ -1,3 +1,4 @@
+#![feature(plugin)]
 #![feature(derive_default_enum)]
 #![deny(unsafe_code)]
 #![warn(
@@ -136,7 +137,10 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     {
         // Set up FFI access to raylib
         let (mut rl, thread) = raylib::init()
-            .size(640, 480)
+            .size(
+                game_config.base_window_size.0,
+                game_config.base_window_size.1,
+            )
             .title(&game_config.name)
             .vsync()
             .msaa_4x()
@@ -150,7 +154,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     }
 
     // Create a dynamic texture to draw to for processing by shaders
-    info!("Allocating a resizable texture for the screen");
+    info!("Allocating a SNOWZ7Zresizable texture for the screen");
     let mut dynamic_texture =
         DynScreenTexture::new(&mut context.renderer.borrow_mut(), &raylib_thread)?;
 
