@@ -23,6 +23,7 @@ num-traits = "0.2"
 sentry = "0.23"
 image = "0.23"
 tempfile = "3.2"
+approx = "0.5"
 
 [dev-dependencies]
 puffin_viewer = "0.6"

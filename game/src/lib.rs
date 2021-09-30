@@ -89,6 +89,8 @@ use crate::{
 extern crate thiserror;
 #[macro_use]
 extern crate serde;
+#[macro_use]
+extern crate approx;
 
 mod context;
 mod discord_rpc;
@@ -191,10 +193,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         }
 
         // Fetch the screen size once to work with in render code
-        let screen_size = Vector2::new(
-            context.renderer.borrow().get_screen_width() as f32,
-            context.renderer.borrow().get_screen_height() as f32,
-        );
+        let screen_size = context.renderer.borrow().get_screen_size();
 
         // Update the pixel shader to correctly handle the screen size
         pixel_shader.set_variable("viewport", screen_size)?;

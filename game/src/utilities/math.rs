@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use num_traits::{Float};
+use num_traits::Float;
 use raylib::math::Vector2;
 
 /// Rotate a vector by an angle
@@ -27,7 +27,9 @@ where
     let normalized_value = (value - input_range.start) / (input_range.end - input_range.start);
 
     // Map the value along an exponential curve as defined by the exponent
-    let mapped_value = ((normalized_value - T::one()).powf(exp) * -T::one()) + T::one();
+    let mapped_value = (-T::one())
+        .mul((normalized_value.mul(T::one().add(T::one())) - T::one()).powf(exp))
+        .add(T::one());
 
     // Return the value mapped to the output range
     (mapped_value * (output_range.end - output_range.start)) + output_range.start
@@ -44,4 +46,49 @@ where
 
     // Interpolate the value
     interpolate_exp_unchecked(clamped_value, input_range, output_range, exp)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_rotate_vector() {
+        let vector = Vector2 { x: 1.0, y: 0.0 };
+        let angle_rad = 90.0.to_radians();
+        let expected_vector = Vector2 { x: 0.0, y: 1.0 };
+        let actual_vector = rotate_vector(vector, angle_rad);
+        assert!(relative_eq!(
+            actual_vector.x,
+            expected_vector.x,
+            epsilon = f32::EPSILON
+        ));
+        assert!(relative_eq!(
+            actual_vector.y,
+            expected_vector.y,
+            epsilon = f32::EPSILON
+        ));
+    }
+
+    #[test]
+    fn test_interpolate_exp_head() {
+        let input_range = 0.0..1.0;
+        let output_range = 0.0..1.0;
+        let exp = 8.0;
+        let value = 0.043;
+        let expected_value = 0.513;
+        let actual_value = interpolate_exp(value, input_range, output_range, exp);
+        assert!(relative_eq!(actual_value, expected_value, epsilon = 0.001));
+    }
+
+    #[test]
+    fn test_interpolate_exp_tail() {
+        let input_range = 0.0..1.0;
+        let output_range = 0.0..1.0;
+        let exp = 8.0;
+        let value = 0.957;
+        let expected_value = 0.513;
+        let actual_value = interpolate_exp(value, input_range, output_range, exp);
+        assert!(relative_eq!(actual_value, expected_value, epsilon = 0.001));
+    }
 }

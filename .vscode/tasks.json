@@ -33,6 +33,18 @@
 			"env": {
 				"RUST_LOG": "debug"
 			}
+		},
+		{
+			"type": "cargo",
+			"command": "run",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "Rust: Run Game - TRACE",
+			"env": {
+				"RUST_LOG": "trace"
+			}
 		}
 	]
 }
