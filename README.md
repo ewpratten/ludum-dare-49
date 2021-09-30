@@ -4,6 +4,16 @@
 [![Rust 1.57 nightly](https://img.shields.io/badge/Rust-1.57%20nightly-orange)](https://www.rust-lang.org/)
 [![Made with Raylib](https://img.shields.io/badge/Made%20With-raylib-blue)](https://www.raylib.com/)
 
+## The Team
+
+This game is developed by a team of 4 students from Sheridan College and Trent University.
+
+- [**Evan Pratten**](https://github.com/ewpratten)
+  - Team lead
+  - Software developer
+- [**Carter Tomlenovich**](https://github.com/hyperliskdev)
+  - Software developer
+
 ## Directory Structure
 
 - `game`: Contains the game code and assets
