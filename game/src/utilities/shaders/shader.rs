@@ -49,7 +49,7 @@ impl ShaderWrapper {
         // Create shader
         let shader = load_shader_from_heap(
             raylib,
-            &thread,
+            thread,
             match vertex_shader_code {
                 Some(result) => match result {
                     Ok(code) => Some(code),

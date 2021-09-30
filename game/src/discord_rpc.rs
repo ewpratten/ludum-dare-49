@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use discord_sdk::activity::ActivityBuilder;
-use tracing::{error, log::info};
+use tracing::{log::info};
 
 use crate::utilities::discord::{rpc::DiscordError, DiscordConfig, DiscordRpcClient};
 

@@ -4,7 +4,7 @@ use dirty_fsm::{Action, ActionFlag};
 use crate::{context::GameContext, utilities::render_layer::ScreenSpaceRender};
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, error, info, trace};
+use tracing::{debug, info, trace};
 
 /// Defines how long the loading screen should be displayed.
 const LOADING_SCREEN_DURATION_SECONDS: u8 = 3;
@@ -29,7 +29,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running LoadingScreen for the first time");
 
         // Keep track of when this screen is opened
@@ -40,7 +40,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
 
     fn execute(
         &mut self,
-        delta: &chrono::Duration,
+        _delta: &chrono::Duration,
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on LoadingScreen");
@@ -60,7 +60,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
         }
     }
 
-    fn on_finish(&mut self, interrupted: bool) -> Result<(), ScreenError> {
+    fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished LoadingScreen");
 
         // Reset the start timestamp
@@ -73,7 +73,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
 impl ScreenSpaceRender for LoadingScreen {
     fn render_screen_space(
         &self,
-        raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
+        _raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
     ) {
 
         // Calculate the loading screen fade in/out value

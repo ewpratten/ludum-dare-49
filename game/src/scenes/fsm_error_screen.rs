@@ -1,8 +1,8 @@
-use std::cell::{Cell, RefCell};
+
 
 use dirty_fsm::{Action, ActionFlag};
-use raylib::{color::Color, prelude::RaylibDraw, RaylibHandle};
-use tracing::{debug, error, info, trace};
+use raylib::{color::Color, prelude::RaylibDraw};
+use tracing::{debug, trace};
 
 use crate::{
     context::GameContext,
@@ -27,14 +27,14 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running FsmErrorScreen for the first time");
         Ok(())
     }
 
     fn execute(
         &mut self,
-        delta: &chrono::Duration,
+        _delta: &chrono::Duration,
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on FsmErrorScreen");
@@ -42,7 +42,7 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
         Ok(ActionFlag::Continue)
     }
 
-    fn on_finish(&mut self, interrupted: bool) -> Result<(), ScreenError> {
+    fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished FsmErrorScreen");
         Ok(())
     }

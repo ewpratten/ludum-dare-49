@@ -15,7 +15,7 @@ impl DynScreenTexture {
     pub fn new(raylib: &mut RaylibHandle, thread: &RaylibThread) -> Result<Self, String> {
         Ok(Self {
             texture: raylib.load_render_texture(
-                &thread,
+                thread,
                 raylib.get_screen_width() as u32,
                 raylib.get_screen_height() as u32,
             )?,
@@ -34,7 +34,7 @@ impl DynScreenTexture {
             || self.texture.height() != raylib.get_screen_height()
         {
             self.texture = raylib.load_render_texture(
-                &thread,
+                thread,
                 raylib.get_screen_width() as u32,
                 raylib.get_screen_height() as u32,
             )?;
