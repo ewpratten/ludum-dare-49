@@ -76,10 +76,15 @@ use raylib::prelude::*;
 use tracing::{error, info};
 use utilities::discord::DiscordConfig;
 
-use crate::{context::GameContext, discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord}, scenes::{build_screen_state_machine, Scenes}, utilities::{ffi_logging::hook_raylib_logging, shaders::{
+use crate::{
+    context::GameContext,
+    discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
+    scenes::{build_screen_state_machine, Scenes},
+    utilities::shaders::{
         shader::ShaderWrapper,
         util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
-    }}};
+    },
+};
 
 #[macro_use]
 extern crate thiserror;
@@ -133,7 +138,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     let raylib_thread;
     {
         // Set up FFI access to raylib
-        hook_raylib_logging();
+        // hook_raylib_logging();
         let (mut rl, thread) = raylib::init()
             .size(
                 game_config.base_window_size.0,
@@ -143,6 +148,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
             .vsync()
             .msaa_4x()
             .resizable()
+            .replace_logger()
             .build();
         rl.set_exit_key(None);
         raylib_thread = thread;

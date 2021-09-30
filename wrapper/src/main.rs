@@ -1,21 +1,15 @@
-use game::{game_begin, GameConfig, StaticGameData};
+use game::{GameConfig, StaticGameData, game_begin};
 
 #[tokio::main]
 async fn main() {
     // Enable logging
-    tracing_subscriber::fmt()
-        .compact()
-        .with_thread_names(true)
-        .with_ansi(true)
-        .with_max_level(tracing::Level::INFO)
-        .init();
+    tracing_subscriber::fmt::init();
 
     // Load the general config for the game
     // This happens here so we can properly track sentry events
     let game_config = GameConfig::load(
         StaticGameData::get("configs/application.json").expect("Failed to load application.json"),
-    )
-    .unwrap();
+    ).unwrap();
 
     // Connect to sentry
     let _sentry_guard = sentry::init((

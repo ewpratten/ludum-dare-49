@@ -16,7 +16,7 @@ serde_json = "1.0.64"
 thiserror = "1.0"
 chrono = "0.4"
 rust-embed = "6.2.0"
-raylib = "3.5"
+raylib = { version = "3.5", git = "https://github.com/ewpratten/raylib-rs", rev = "bdee38594356478a11a95a48b336a97150749334" }
 puffin = "0.9"
 puffin_http = "0.6"
 dirty-fsm = "^0.2.2"
@@ -29,7 +29,6 @@ pkg-version = "1.0"
 cfg-if = "1.0"
 num-derive = "0.3"
 num = "0.4"
-printf = "0.1"
 
 [dev-dependencies]
 puffin_viewer = "0.6"
