@@ -124,5 +124,18 @@ impl ScreenSpaceRender for LoadingScreen {
             1.0,
             Color::WHITE.fade(fade_percentage),
         );
+
+        // Only in debug mode, render a debug message
+        #[cfg(debug_assertions)]
+        {
+            raylib.draw_rectangle_v(Vector2::zero(), Vector2::new(screen_size.x, 40.0), Color::RED);
+            raylib.draw_text(
+                "Game in DEBUG MODE. Do not redistribute!",
+                10,
+                10,
+                20,
+                Color::WHITE,
+            );
+        }
     }
 }
