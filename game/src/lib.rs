@@ -1,6 +1,7 @@
 #![feature(derive_default_enum)]
 #![feature(custom_inner_attributes)]
 #![feature(stmt_expr_attributes)]
+#![feature(c_variadic)]
 #![deny(unsafe_code)]
 #![warn(
     clippy::all,
@@ -75,15 +76,10 @@ use raylib::prelude::*;
 use tracing::{error, info};
 use utilities::discord::DiscordConfig;
 
-use crate::{
-    context::GameContext,
-    discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
-    scenes::{build_screen_state_machine, Scenes},
-    utilities::shaders::{
+use crate::{context::GameContext, discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord}, scenes::{build_screen_state_machine, Scenes}, utilities::{ffi_logging::hook_raylib_logging, shaders::{
         shader::ShaderWrapper,
         util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
-    },
-};
+    }}};
 
 #[macro_use]
 extern crate thiserror;
@@ -91,6 +87,8 @@ extern crate thiserror;
 extern crate serde;
 #[macro_use]
 extern crate approx;
+#[macro_use]
+extern crate num_derive;
 
 mod context;
 mod discord_rpc;
@@ -135,6 +133,7 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     let raylib_thread;
     {
         // Set up FFI access to raylib
+        hook_raylib_logging();
         let (mut rl, thread) = raylib::init()
             .size(
                 game_config.base_window_size.0,
