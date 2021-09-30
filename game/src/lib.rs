@@ -64,20 +64,19 @@
     nonstandard_style,
     rust_2018_idioms
 )]
+#![feature(custom_inner_attributes)]
+#![clippy::msrv = "1.57.0"]
 
 use std::cell::RefCell;
 
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
 use tracing::{error, info};
-use utilities::{
-    datastore::StaticGameData,
-    discord::{DiscordConfig, DiscordRpcClient},
-    game_config::GameConfig,
-};
+use utilities::discord::DiscordConfig;
 
 use crate::{
     context::GameContext,
+    discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
     scenes::build_screen_state_machine,
     utilities::shaders::{
         shader::ShaderWrapper,
@@ -91,45 +90,46 @@ extern crate thiserror;
 extern crate serde;
 
 mod context;
+mod discord_rpc;
 mod scenes;
 mod utilities;
+pub use utilities::{datastore::StaticGameData, game_config::GameConfig};
 
 /// The game entrypoint
-pub async fn game_begin() -> Result<(), Box<dyn std::error::Error>> {
-    // Load the general config for the game
-    let game_config = GameConfig::load(
-        StaticGameData::get("configs/application.json").expect("Failed to load application.json"),
-    )?;
-
+pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::error::Error>> {
     // Set up profiling
     #[cfg(debug_assertions)]
     let _puffin_server =
-        puffin_http::Server::new(&format!("0.0.0.0:{}", puffin_http::DEFAULT_PORT))?;
+        puffin_http::Server::new(&format!("0.0.0.0:{}", puffin_http::DEFAULT_PORT)).unwrap();
     puffin::set_scopes_on(true);
 
     // Attempt to connect to a locally running Discord instance for rich presence access
     let discord_config = DiscordConfig::load(
         StaticGameData::get("configs/discord.json").expect("Failed to load discord.json"),
-    )?;
-    let discord_rpc =
-        match DiscordRpcClient::new(discord_config.app_id, discord_sdk::Subscriptions::ACTIVITY)
-            .await
-        {
-            Ok(client) => Some(client),
-            Err(err) => {
-                error!("Could not connect to or find a locally running Discord instance.");
-                error!("Discord connection error: {:?}", err);
+    )
+    .unwrap();
+    let discord_rpc = match try_connect_to_local_discord(&discord_config).await {
+        Ok(client) => Some(client),
+        Err(err) => match err {
+            utilities::discord::rpc::DiscordError::ConnectionTimeoutError(time) => {
+                error!(
+                    "Could not find or connect to a local Discord instance after {} seconds",
+                    time
+                );
                 None
             }
-        };
-
-    if let Some(rpc) = discord_rpc {
-        rpc.set_rich_presence(ActivityBuilder::default().details("Testing..."))
-            .await?;
-    }
+            _ => panic!("Failed to connect to Discord: {}", err),
+        },
+    };
+    maybe_set_discord_presence(
+        &discord_rpc,
+        ActivityBuilder::default().details("Testing..."),
+    )
+    .await
+    .unwrap();
 
     // Get the main state machine
-    let mut game_state_machine = build_screen_state_machine()?;
+    let mut game_state_machine = build_screen_state_machine().unwrap();
 
     let context;
     let raylib_thread;
@@ -171,7 +171,9 @@ pub async fn game_begin() -> Result<(), Box<dyn std::error::Error>> {
         puffin::GlobalProfiler::lock().new_frame();
 
         // Update the GPU texture that we draw to. This handles screen resizing and some other stuff
-        dynamic_texture.update(&mut context.renderer.borrow_mut(), &raylib_thread)?;
+        dynamic_texture
+            .update(&mut context.renderer.borrow_mut(), &raylib_thread)
+            .unwrap();
 
         // Switch into draw mode the unsafe way (using unsafe code here to avoid borrow checker hell)
         #[allow(unsafe_code)]

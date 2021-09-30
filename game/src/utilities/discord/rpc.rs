@@ -7,6 +7,7 @@ use discord_sdk::{
     Discord, DiscordApp, Subscriptions,
 };
 use tracing::info;
+use tokio::time::error::Elapsed;
 
 #[derive(Debug, Error)]
 pub enum DiscordError {
@@ -16,6 +17,8 @@ pub enum DiscordError {
     AwaitConnectionError(#[from] tokio::sync::watch::error::RecvError),
     #[error("Could not connect")]
     ConnectionError,
+    #[error(transparent)]
+    ConnectionTimeoutError(#[from] Elapsed)
 }
 
 /// The client wrapper for Discord RPC

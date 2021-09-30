@@ -15,6 +15,7 @@ pub struct Author {
 pub struct GameConfig {
     pub name: String,
     pub authors: Vec<Author>,
+    pub sentry_dsn: String
 }
 
 impl GameConfig {

@@ -10,3 +10,4 @@ edition = "2018"
 game =  { version = "0.1", path = "../game"}
 tracing-subscriber = "0.2"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+sentry = "0.23"
