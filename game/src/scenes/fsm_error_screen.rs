@@ -4,7 +4,10 @@ use dirty_fsm::{Action, ActionFlag};
 use raylib::{color::Color, prelude::RaylibDraw, RaylibHandle};
 use tracing::{debug, error, info, trace};
 
-use crate::{context::GameContext, gfx::render_layer::ScreenSpaceRender, utilities::non_ref_raylib::HackedRaylibHandle};
+use crate::{
+    context::GameContext,
+    utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender},
+};
 
 use super::{Scenes, ScreenError};
 

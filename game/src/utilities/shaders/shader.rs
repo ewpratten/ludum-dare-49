@@ -69,6 +69,9 @@ impl ShaderWrapper {
         // Create connections between CPU and GPU
         let mut variables = HashMap::new();
         for variable_name in variable_names {
+
+            // I know what I'm doing here. We can skip this error
+            #[allow(unsafe_code)]
             variables.insert(variable_name.to_string(), unsafe {
                 raylib::ffi::GetShaderLocation(*shader, CString::new(variable_name)?.as_ptr())
             });

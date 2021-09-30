@@ -6,5 +6,5 @@ async fn main() {
     tracing_subscriber::fmt::init();
 
     // Start the game
-    game_begin().await;
+    game_begin().await.unwrap();
 }
