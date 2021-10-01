@@ -16,7 +16,9 @@ serde_json = "1.0.64"
 thiserror = "1.0"
 chrono = "0.4"
 rust-embed = "6.2.0"
-raylib = { version = "3.5", git = "https://github.com/ewpratten/raylib-rs", rev = "bdee38594356478a11a95a48b336a97150749334" }
+raylib = { version = "3.5", git = "https://github.com/ewpratten/raylib-rs", rev = "2399e17d7bf299f34c8e618a9ab140b274639cfb", features = [
+    "with_serde"
+] }
 puffin = "0.9"
 puffin_http = "0.6"
 dirty-fsm = "^0.2.2"
