@@ -80,9 +80,12 @@ use crate::{
     context::GameContext,
     discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
     scenes::{build_screen_state_machine, Scenes},
-    utilities::shaders::{
-        shader::ShaderWrapper,
-        util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
+    utilities::{
+        game_config::FinalShaderConfig,
+        shaders::{
+            shader::ShaderWrapper,
+            util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
+        },
     },
 };
 
@@ -166,16 +169,20 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         .unwrap();
 
     // Create a dynamic texture to draw to for processing by shaders
-    info!("Allocating a SNOWZ7Zresizable texture for the screen");
+    info!("Allocating a resizable texture for the screen");
     let mut dynamic_texture =
         DynScreenTexture::new(&mut context.renderer.borrow_mut(), &raylib_thread)?;
 
     // Load the pixel art shader
     info!("Loading the pixel art shader");
+    let pixel_shader_config = FinalShaderConfig::load(
+        StaticGameData::get("configs/final_shader.json").expect("Failed to load final_shader.json"),
+    )
+    .unwrap();
     let mut pixel_shader = ShaderWrapper::new(
         None,
         Some(StaticGameData::get("shaders/pixelart.fs")).expect("Failed to load pixelart.fs"),
-        vec!["viewport"],
+        vec!["viewport", "pixelScale", "warpFactor", "scanlineDarkness"],
         &mut context.renderer.borrow_mut(),
         &raylib_thread,
     )?;
@@ -202,6 +209,15 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
 
         // Update the pixel shader to correctly handle the screen size
         pixel_shader.set_variable("viewport", screen_size)?;
+        pixel_shader.set_variable(
+            "pixelScale",
+            Vector2::new(
+                pixel_shader_config.pixel_scale,
+                pixel_shader_config.pixel_scale,
+            ),
+        )?;
+        pixel_shader.set_variable("warpFactor", pixel_shader_config.warp_factor)?;
+        pixel_shader.set_variable("scanlineDarkness", pixel_shader_config.scanline_darkness)?;
 
         // Render the game via the pixel shader
         render_to_texture(&mut dynamic_texture, || {
