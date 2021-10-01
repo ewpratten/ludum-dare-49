@@ -5,7 +5,16 @@ use dirty_fsm::{Action, ActionFlag};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{context::GameContext, utilities::{datastore::{load_texture_from_internal_data, ResourceLoadError}, game_version::get_version_string, math::interpolate_exp, non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender}};
+use crate::{
+    context::GameContext,
+    utilities::{
+        datastore::{load_texture_from_internal_data, ResourceLoadError},
+        game_version::get_version_string,
+        math::interpolate_exp,
+        non_ref_raylib::HackedRaylibHandle,
+        render_layer::ScreenSpaceRender,
+    },
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -40,7 +49,12 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         trace!("execute() called on MainMenuScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut());
 
-        Ok(ActionFlag::Continue)
+        // TODO: TEMP
+        if context.renderer.borrow_mut().is_key_pressed(KeyboardKey::KEY_SPACE) {
+            Ok(ActionFlag::SwitchState(Scenes::InGameScene))
+        } else {
+            Ok(ActionFlag::Continue)
+        }
     }
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
@@ -55,7 +69,7 @@ impl ScreenSpaceRender for MainMenuScreen {
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
     ) {
         // Render the background
-        raylib.clear_background(Color::WHITE);
+        raylib.clear_background(Color::BLACK);
 
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
@@ -68,16 +82,20 @@ impl ScreenSpaceRender for MainMenuScreen {
                 10,
                 screen_size.y as i32 - 35,
                 15,
-                Color::BLACK,
+                Color::WHITE,
             );
         }
         // Render the game version info
         raylib.draw_text(
-            &format!("Version: {} Commit: {}", get_version_string(), env!("VERGEN_GIT_SHA_SHORT")),
+            &format!(
+                "Version: {} Commit: {}",
+                get_version_string(),
+                env!("VERGEN_GIT_SHA_SHORT")
+            ),
             10,
             screen_size.y as i32 - 20,
             15,
-            Color::BLACK,
+            Color::WHITE,
         );
     }
 }

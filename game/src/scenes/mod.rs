@@ -1,5 +1,5 @@
 use self::{
-    fsm_error_screen::FsmErrorScreen, loading_screen::LoadingScreen,
+    fsm_error_screen::FsmErrorScreen, ingame_scene::InGameScreen, loading_screen::LoadingScreen,
     main_menu_screen::MainMenuScreen,
 };
 use crate::{
@@ -10,6 +10,7 @@ use dirty_fsm::StateMachine;
 use raylib::RaylibThread;
 
 pub mod fsm_error_screen;
+pub mod ingame_scene;
 pub mod loading_screen;
 pub mod main_menu_screen;
 
@@ -20,6 +21,7 @@ pub enum Scenes {
     FsmErrorScreen,
     LoadingScreen,
     MainMenuScreen,
+    InGameScene,
 }
 
 /// Contains any possible errors thrown while rendering
@@ -45,5 +47,6 @@ pub fn build_screen_state_machine(
         LoadingScreen::new(raylib_handle, thread)?,
     )?;
     machine.add_action(Scenes::MainMenuScreen, MainMenuScreen::new())?;
+    machine.add_action(Scenes::InGameScene, InGameScreen::new())?;
     Ok(machine)
 }

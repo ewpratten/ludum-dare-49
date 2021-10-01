@@ -111,7 +111,7 @@ impl ScreenSpaceRender for LoadingScreen {
         trace!("Loading screen fade at {:.2}%", fade_percentage);
 
         // Render the background
-        raylib.clear_background(Color::WHITE);
+        raylib.clear_background(Color::BLACK);
 
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();

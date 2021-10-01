@@ -103,6 +103,7 @@ mod discord_rpc;
 mod scenes;
 mod utilities;
 pub use utilities::{datastore::StaticGameData, game_config::GameConfig};
+mod character;
 
 /// The game entrypoint
 pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::error::Error>> {

@@ -3,7 +3,7 @@ use raylib::{prelude::RaylibMode2D, RaylibHandle};
 use crate::utilities::non_ref_raylib::HackedRaylibHandle;
 
 pub trait FrameUpdate {
-    fn update(&mut self, raylib: &RaylibHandle, delta_seconds: f32);
+    fn update(&mut self, raylib: &HackedRaylibHandle, delta_seconds: &chrono::Duration);
 }
 
 pub trait ScreenSpaceRender {
