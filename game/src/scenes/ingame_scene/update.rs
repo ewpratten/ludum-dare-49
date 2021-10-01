@@ -16,7 +16,7 @@ impl FrameUpdate for InGameScreen {
         let is_pause = raylib.is_key_down(KeyboardKey::KEY_ESCAPE);
 
         if is_jump {
-            self.player.apply_force(Vector2::new(0.0, 1.0));
+            self.player.apply_force(Vector2::new(0.0, -1.0));
         }
     }
 }
