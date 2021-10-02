@@ -17,17 +17,24 @@ pub fn render_character_in_camera_space(
     let time_since_state_change = Utc::now() - player.state_set_timestamp;
 
     // Calculate the number of frames since state change
-    let frames_since_state_change = ((time_since_state_change.num_milliseconds() as f64 / 1000.0) * config.animation_fps as f64) as f32;
+    let frames_since_state_change = ((time_since_state_change.num_milliseconds() as f64 / 1000.0)
+        * config.animation_fps as f64) as f32;
+
+    // Calculate the frame ID to render
+    let frame_id = match player.current_state {
+        crate::character::CharacterState::Jumping => 4,
+        _ => (frames_since_state_change % player.sprite_sheet.sprite_count as f32).floor() as usize,
+    };
 
     trace!(
         "Rendering player frame: {} ({})",
-        frames_since_state_change % player.sprite_sheet.sprite_count as f32,
+        frame_id,
         frames_since_state_change
     );
     player.sprite_sheet.render(
         raylib,
         player.position.sub(player.size.div(2.0)),
         Some(Vector2::new(player.size.y, player.size.y)),
-        Some((frames_since_state_change % player.sprite_sheet.sprite_count as f32).floor() as usize),
+        Some(frame_id),
     );
 }

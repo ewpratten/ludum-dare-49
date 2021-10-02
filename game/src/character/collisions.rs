@@ -1,6 +1,6 @@
 use raylib::math::{Rectangle, Vector2};
 
-use super::MainCharacter;
+use super::{CharacterState, MainCharacter};
 
 const GRAVITY_PPS: f32 = 2.0;
 
@@ -22,6 +22,11 @@ pub fn modify_player_based_on_forces(player: &mut MainCharacter) -> Result<(), (
         && player.velocity.y > 0.0
     {
         player.velocity.y = 0.0;
+
+        // Handle ending a jump
+        if player.current_state == CharacterState::Jumping {
+            player.set_state(CharacterState::Running);
+        }
     }
 
     // TODO: Error out if colliding in the X direction

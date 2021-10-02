@@ -8,7 +8,7 @@ use crate::utilities::anim_render::AnimatedSpriteSheet;
 
 use self::collisions::modify_player_based_on_forces;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub enum CharacterState {
     #[default]
     Running,
@@ -47,7 +47,6 @@ impl MainCharacter {
     pub fn apply_force(&mut self, force: Vector2) -> Option<()> {
         self.velocity = force;
         modify_player_based_on_forces(self).unwrap();
-        // self.position = calculate_player_collisions(&self).unwrap();
         Some(())
     }
 
@@ -56,7 +55,9 @@ impl MainCharacter {
     }
 
     pub fn set_state(&mut self, state: CharacterState) {
-        self.current_state = state;
-        self.state_set_timestamp = Utc::now();
+        if state != self.current_state {
+            self.current_state = state;
+            self.state_set_timestamp = Utc::now();
+        }
     }
 }

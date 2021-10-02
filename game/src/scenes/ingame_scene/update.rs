@@ -2,6 +2,7 @@ use std::ops::Div;
 
 use super::InGameScreen;
 use crate::{
+    character::CharacterState,
     utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::FrameUpdate},
     GameConfig,
 };
@@ -26,6 +27,14 @@ impl FrameUpdate for InGameScreen {
 
         if is_jump {
             self.player.apply_force(Vector2::new(0.0, -30.0));
+            self.player.set_state(CharacterState::Jumping);
+        } else if is_dash {
+            self.player.apply_force(Vector2::new(20.0, -10.0));
+            self.player.set_state(CharacterState::Dashing);
+        } else {
+            if self.player.current_state != CharacterState::Jumping {
+                self.player.set_state(CharacterState::Running);
+            }
         }
         self.player.update_gravity();
     }

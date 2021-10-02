@@ -11,7 +11,7 @@ pub struct AnimatedSpriteSheet {
     sprite_size: Vector2,
     sheet_width: usize,
     pub sprite_count: usize,
-    default_sprite_id: usize,
+    pub default_sprite_id: usize,
 }
 
 impl AnimatedSpriteSheet {
