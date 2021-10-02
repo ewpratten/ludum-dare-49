@@ -7,9 +7,9 @@ pub trait FrameUpdate {
 }
 
 pub trait ScreenSpaceRender {
-    fn render_screen_space(&self, raylib: &mut HackedRaylibHandle, config: &GameConfig);
+    fn render_screen_space(&mut self, raylib: &mut HackedRaylibHandle, config: &GameConfig);
 }
 
 pub trait WorldSpaceRender {
-    fn render_world_space(&self, raylib: &mut RaylibMode2D<'_, HackedRaylibHandle>, config: &GameConfig);
+    fn render_world_space(&mut self, raylib: &mut RaylibMode2D<'_, HackedRaylibHandle>, config: &GameConfig);
 }

@@ -4,7 +4,7 @@ use super::InGameScreen;
 
 impl ScreenSpaceRender for InGameScreen {
     fn render_screen_space(
-        &self,
+        &mut self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
         config: &GameConfig
     ) {
