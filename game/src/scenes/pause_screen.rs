@@ -59,6 +59,15 @@ impl Action<Scenes, ScreenError, GameContext> for PauseScreen {
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on PauseScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
+        //Screen Size
+        let screen_size = context.renderer.borrow_mut().get_screen_size();
+
+
+        let centered_x_menu = (screen_size.x as f32 / 2.0) - 120.0;
+        let centered_y_menu = (screen_size.y as f32 / 2.0) + 100.0;
+        let centered_x_paused = (screen_size.x as f32 / 2.0) - 220.0;
+        let centered_y_paused = (screen_size.y as f32 / 2.0) - 40.0;
+
 
         //Mouse Position
         let mouse_position: Vector2 = context.renderer.borrow_mut().get_mouse_position();
@@ -69,14 +78,16 @@ impl Action<Scenes, ScreenError, GameContext> for PauseScreen {
             .is_mouse_button_down(MouseButton::MOUSE_LEFT_BUTTON);
 
         //"Hitboxes" for the resume and Main menu buttons
+
+        //For Paused
         if is_left_click
-            && Rectangle::new(322.0, 321.0, 435.0, 80.0).check_collision_point_rec(mouse_position)
+            && Rectangle::new(centered_x_paused, centered_y_paused, 435.0, 80.0).check_collision_point_rec(mouse_position)
         {
             return Ok(ActionFlag::SwitchState(Scenes::InGameScene));
         }
-
+        //For Menu
         if is_left_click
-            && Rectangle::new(390.0, 464.0, 200.0, 50.0).check_collision_point_rec(mouse_position)
+            && Rectangle::new(centered_x_menu, centered_y_menu, 200.0, 50.0).check_collision_point_rec(mouse_position)
         {
             return Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen));
         }
@@ -113,6 +124,8 @@ impl ScreenSpaceRender for PauseScreen {
         let mouse_position: Vector2 = raylib.get_mouse_position();
         //Mouse Input
         let is_left_click = raylib.is_mouse_button_down(MouseButton::MOUSE_LEFT_BUTTON);
+
+        raylib.draw_rectangle_lines(0, 0, screen_size.x as i32, screen_size.y as i32, config.colors.white);
 
         //Pause Menu Texts With Glitchy Effect
         raylib.draw_text(
@@ -179,23 +192,61 @@ impl ScreenSpaceRender for PauseScreen {
             Color::WHITE,
         );
 
-        if Rectangle::new(390.0, 464.0, 200.0, 50.0).check_collision_point_rec(mouse_position) {
+        //Push comment
+
+        //Variables for centering
+        let centered_x_menu = (screen_size.x as f32 / 2.0) - 120.0;
+        let centered_y_menu = (screen_size.y as f32 / 2.0) + 100.0;
+        let centered_x_paused = (screen_size.x as f32 / 2.0) - 220.0;
+        let centered_y_paused = (screen_size.y as f32 / 2.0) - 40.0;
+
+
+        if Rectangle::new(centered_x_menu, centered_y_menu, 200.0, 50.0).check_collision_point_rec(mouse_position) {
+            raylib.draw_text(
+                "Main Menu",
+                (screen_size.x as i32 / 2) - 116,
+                (screen_size.y as i32 / 2) + 100,
+                50,
+                Color::RED,
+            );
+            raylib.draw_text(
+                "Main Menu",
+                (screen_size.x as i32 / 2) - 124,
+                (screen_size.y as i32 / 2) + 100,
+                50,
+                Color::BLUE,
+            );
             raylib.draw_text(
                 "Main Menu",
                 (screen_size.x as i32 / 2) - 120,
                 (screen_size.y as i32 / 2) + 100,
                 50,
-                Color::YELLOW,
+                Color::WHITE,
             );
+
         }
 
-        if Rectangle::new(322.0, 321.0, 435.0, 80.0).check_collision_point_rec(mouse_position) {
+        if Rectangle::new(centered_x_paused, centered_y_paused, 435.0, 80.0).check_collision_point_rec(mouse_position) {
+            raylib.draw_text(
+                "Paused",
+                (screen_size.x as i32 / 2) - 215,
+                (screen_size.y as i32 / 2) - 40,
+                120,
+                Color::BLUE,
+            );
+            raylib.draw_text(
+                "Paused",
+                (screen_size.x as i32 / 2) - 225,
+                (screen_size.y as i32 / 2) - 40,
+                120,
+                Color::RED,
+            );
             raylib.draw_text(
                 "Paused",
                 (screen_size.x as i32 / 2) - 220,
                 (screen_size.y as i32 / 2) - 40,
                 120,
-                Color::DARKBLUE,
+                Color::WHITE,
             );
         }
     }
