@@ -3,7 +3,7 @@ use std::{io::Write, path::Path};
 use raylib::{texture::Texture2D, RaylibHandle, RaylibThread};
 use tempfile::{tempdir, NamedTempFile};
 use tracing::debug;
-
+use tiled::*;
 /// Contains all game assets.
 ///
 /// This uses macro magic to automatically embed the contents of `game/assets/` into the executable
@@ -64,4 +64,25 @@ pub fn load_texture_from_internal_data(
     temp_dir.close()?;
 
     Ok(texture)
+}
+
+// Loading specific to level files.
+pub fn load_map_from_internal_data(path: &str) -> Result<Map, ResourceLoadError> {
+
+    let temp_dir = tempdir()?;
+    let tmp_path = temp_dir.path().join(Path::new(path).filename().unwrap());
+
+    std::fs::write(&tmp_path,
+        &StaticGameData::get(path)
+        .ok_or(ResourceLoadError::AssetNotFound(path.to_string()))?
+        .data,
+    )?;
+
+
+    let map_file = File::open(tmp_path.to_str())?;
+    let level = parse(map_file).unwrap();
+
+    temp_dir.close()?;
+
+    Ok(level);
 }
