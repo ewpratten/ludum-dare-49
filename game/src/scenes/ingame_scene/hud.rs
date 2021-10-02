@@ -10,5 +10,8 @@ impl ScreenSpaceRender for InGameScreen {
     ) {
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
+
+        // Draw a thin glow box around the screen
+        raylib.draw_rectangle_lines(0, 0, screen_size.x as i32, screen_size.y as i32, config.colors.red);
     }
 }

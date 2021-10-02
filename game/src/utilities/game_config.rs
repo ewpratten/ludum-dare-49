@@ -20,6 +20,7 @@ pub struct ColorTheme {
     pub yellow: Color,
     pub pink: Color,
     pub background: Color,
+    pub white: Color,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -28,6 +29,7 @@ pub struct GameConfig {
     pub base_window_size: (i32, i32),
     pub sentry_dsn: String,
     pub colors: ColorTheme,
+    pub animation_fps: usize,
 }
 
 impl GameConfig {

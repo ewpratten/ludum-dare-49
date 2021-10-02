@@ -6,3 +6,4 @@ pub mod math;
 pub mod non_ref_raylib;
 pub mod render_layer;
 pub mod shaders;
+pub mod anim_render;
