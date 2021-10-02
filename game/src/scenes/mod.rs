@@ -4,10 +4,13 @@ use self::{
 };
 use crate::{
     context::GameContext,
-    utilities::{datastore::ResourceLoadError, non_ref_raylib::HackedRaylibHandle},
+    utilities::{
+        datastore::{load_texture_from_internal_data, ResourceLoadError},
+        non_ref_raylib::HackedRaylibHandle,
+    },
 };
 use dirty_fsm::StateMachine;
-use raylib::RaylibThread;
+use raylib::{texture::Texture2D, RaylibThread};
 
 pub mod fsm_error_screen;
 pub mod ingame_scene;
@@ -40,6 +43,11 @@ pub fn build_screen_state_machine(
     StateMachine<Scenes, ScreenError, GameContext>,
     ScreenError,
 > {
+    // Load the various textures needed by the states
+    let player_sprite_sheet =
+        load_texture_from_internal_data(raylib_handle, thread, "character/player_run.png").unwrap();
+
+    // Set up the state machine
     let mut machine = StateMachine::new();
     machine.add_action(Scenes::FsmErrorScreen, FsmErrorScreen::new())?;
     machine.add_action(
@@ -47,6 +55,6 @@ pub fn build_screen_state_machine(
         LoadingScreen::new(raylib_handle, thread)?,
     )?;
     machine.add_action(Scenes::MainMenuScreen, MainMenuScreen::new())?;
-    machine.add_action(Scenes::InGameScene, InGameScreen::new())?;
+    machine.add_action(Scenes::InGameScene, InGameScreen::new(player_sprite_sheet))?;
     Ok(machine)
 }

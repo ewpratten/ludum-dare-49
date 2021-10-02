@@ -1,18 +1,16 @@
 use std::ops::{Div, Sub};
 
+use cfg_if::cfg_if;
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::GameContext, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -66,12 +64,22 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on LoadingScreen");
-        self.render_screen_space(&mut context.renderer.borrow_mut());
+        self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
+
+        // Check for a quick skip button in debug builds
+        cfg_if! {
+            if #[cfg(debug_assertions)] {
+                let debug_skip_screen = context.renderer.borrow_mut().is_key_pressed(KeyboardKey::KEY_ESCAPE);
+            } else {
+                let debug_skip_screen = false;
+            }
+        }
 
         // Keep rendering until we pass the loading screen duration
         if let Some(start_timestamp) = self.start_timestamp {
             let duration = Utc::now().signed_duration_since(start_timestamp);
-            if duration.num_seconds() >= LOADING_SCREEN_DURATION_SECONDS as i64 {
+            if duration.num_seconds() >= LOADING_SCREEN_DURATION_SECONDS as i64 || debug_skip_screen
+            {
                 info!("LoadingScreen duration reached, moving to next screen");
                 Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
             } else {
@@ -96,6 +104,7 @@ impl ScreenSpaceRender for LoadingScreen {
     fn render_screen_space(
         &self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
+        config: &GameConfig
     ) {
         // Calculate the loading screen fade in/out value
         // This makes the loading screen fade in/out over the duration of the loading screen
@@ -128,7 +137,11 @@ impl ScreenSpaceRender for LoadingScreen {
         // Only in debug mode, render a debug message
         #[cfg(debug_assertions)]
         {
-            raylib.draw_rectangle_v(Vector2::zero(), Vector2::new(screen_size.x, 40.0), Color::RED);
+            raylib.draw_rectangle_v(
+                Vector2::zero(),
+                Vector2::new(screen_size.x, 40.0),
+                Color::RED,
+            );
             raylib.draw_text(
                 "Game in DEBUG MODE. Do not redistribute!",
                 10,

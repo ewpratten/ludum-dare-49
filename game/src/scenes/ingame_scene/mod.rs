@@ -1,7 +1,7 @@
 use dirty_fsm::{Action, ActionFlag};
 use raylib::prelude::*;
 
-use crate::{character::MainCharacter, context::GameContext, utilities::render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender}};
+use crate::{character::{CharacterState, MainCharacter}, context::GameContext, utilities::render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender}};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, trace};
@@ -13,12 +13,12 @@ mod world;
 #[derive(Debug)]
 pub struct InGameScreen {
     camera: Camera2D,
-    player: MainCharacter
+    player: MainCharacter,
 }
 
 impl InGameScreen {
     /// Construct a new `InGameScreen`
-    pub fn new() -> Self {
+    pub fn new(player_sprite_sheet: Texture2D) -> Self {
         Self {
             camera: Camera2D {
                 offset: Vector2::zero(),
@@ -26,7 +26,7 @@ impl InGameScreen {
                 rotation: 0.0,
                 zoom: 1.0,
             },
-            player: MainCharacter::new(Vector2::zero()),
+            player: MainCharacter::new(Vector2::new(0.0, -80.0), player_sprite_sheet),
         }
     }
 }
@@ -40,6 +40,9 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
     fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running InGameScreen for the first time");
 
+        // Set the player to running
+        self.player.set_state(CharacterState::Running);
+
         Ok(())
     }
 
@@ -48,16 +51,17 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         delta: &chrono::Duration,
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
+        puffin::profile_function!();
         trace!("execute() called on InGameScreen");
 
         // Grab exclusive access to the renderer
         let mut renderer = context.renderer.borrow_mut();
 
         // Update the inputs and checking logic
-        self.update(&mut renderer, delta);
+        self.update(&mut renderer, delta, &context.config);
 
         // Wipe the background
-        renderer.clear_background(Color::BLACK);
+        renderer.clear_background(context.config.colors.background);
 
         // Render the world
         {
@@ -65,11 +69,11 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
             let mut raylib_camera_space = renderer.begin_mode2D(self.camera);
 
             // Render in world space
-            self.render_world_space(&mut raylib_camera_space);
+            self.render_world_space(&mut raylib_camera_space, &context.config);
         }
 
         // Render the HUD
-        self.render_screen_space(&mut renderer);
+        self.render_screen_space(&mut renderer, &context.config);
 
         Ok(ActionFlag::Continue)
     }

@@ -1,5 +1,53 @@
 {
     "name": "Unnamed game",
-    "base_window_size": [1080, 720],
-    "sentry_dsn": "https://d5d94e75f08841388287fa0c23606ac7@o398481.ingest.sentry.io/5985679"
+    "base_window_size": [
+        1080,
+        720
+    ],
+    "sentry_dsn": "https://d5d94e75f08841388287fa0c23606ac7@o398481.ingest.sentry.io/5985679",
+    "colors": {
+        "red": [
+            240,
+            70,
+            53,
+            255
+        ],
+        "blue": [
+            101,
+            75,
+            250,
+            255
+        ],
+        "green": [
+            61,
+            227,
+            161,
+            255
+        ],
+        "yellow": [
+            250,
+            235,
+            55,
+            255
+        ],
+        "pink": [
+            240,
+            246,
+            227,
+            255
+        ],
+        "background": [
+            20,
+            20,
+            20,
+            255
+        ],
+        "white": [
+            188,
+            188,
+            188,
+            188
+        ]
+    },
+    "animation_fps": 15
 }
