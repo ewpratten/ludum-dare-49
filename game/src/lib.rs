@@ -176,7 +176,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     let mut game_state_machine =
         build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread).unwrap();
     game_state_machine
-        .force_change_state(Scenes::LoadingScreen)
+        .force_change_state(Scenes::MainMenuScreen)
         .unwrap();
 
     // Create a dynamic texture to draw to for processing by shaders
