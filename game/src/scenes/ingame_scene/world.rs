@@ -16,8 +16,14 @@ impl WorldSpaceRender for InGameScreen {
     ) {
         puffin::profile_function!();
 
+        // Get the current level
+        let cur_level = self.levels.get(self.current_level_idx).unwrap();
+
         // Render the world background
-        self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+        // self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+
+        // Render the platform layer
+        raylib.draw_texture_v(&cur_level.platform_tex, Vector2::new(-10.0, -cur_level.platform_tex.height as f32), Color::WHITE);
 
         // Render the floor as a line
         let screen_world_zero = raylib.get_screen_to_world2D(Vector2::zero(), self.camera);

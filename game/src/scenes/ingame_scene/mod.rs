@@ -1,12 +1,22 @@
 use dirty_fsm::{Action, ActionFlag};
 use raylib::prelude::*;
 
-use crate::{character::{CharacterState, MainCharacter}, context::GameContext, utilities::{render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender}, world_paint_texture::WorldPaintTexture}};
+use crate::{
+    character::{CharacterState, MainCharacter},
+    context::GameContext,
+    utilities::{
+        render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender},
+        world_paint_texture::WorldPaintTexture,
+    },
+};
+
+use self::level::Level;
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, trace};
 
 mod hud;
+pub mod level;
 mod update;
 mod world;
 
@@ -14,12 +24,18 @@ mod world;
 pub struct InGameScreen {
     camera: Camera2D,
     player: MainCharacter,
-    world_background: WorldPaintTexture
+    world_background: WorldPaintTexture,
+    levels: Vec<Level>,
+    current_level_idx: usize,
 }
 
 impl InGameScreen {
     /// Construct a new `InGameScreen`
-    pub fn new(player_sprite_sheet: Texture2D, background_texture: Texture2D) -> Self {
+    pub fn new(
+        player_sprite_sheet: Texture2D,
+        background_texture: Texture2D,
+        levels: Vec<Level>,
+    ) -> Self {
         Self {
             camera: Camera2D {
                 offset: Vector2::zero(),
@@ -28,7 +44,9 @@ impl InGameScreen {
                 zoom: 1.0,
             },
             player: MainCharacter::new(Vector2::new(0.0, -80.0), player_sprite_sheet),
-            world_background: WorldPaintTexture::new(background_texture)
+            world_background: WorldPaintTexture::new(background_texture),
+            levels,
+            current_level_idx: 0,
         }
     }
 }
