@@ -1,4 +1,4 @@
-use std::ops::{Div, Sub};
+use std::ops::{Add, Div, Mul, Sub};
 
 use chrono::Utc;
 use raylib::prelude::*;
@@ -37,4 +37,16 @@ pub fn render_character_in_camera_space(
         Some(Vector2::new(player.size.y, player.size.y)),
         Some(frame_id),
     );
+
+    // Possibly render a debug vector
+    if config.debug_view {
+        raylib.draw_line_v(
+            player.position.sub(player.size.div(2.0)),
+            player
+                .position
+                .sub(player.size.div(2.0))
+                .add(player.velocity.mul(10.0).add(Vector2::new(0.0, 100.0))),
+            Color::RED,
+        );
+    }
 }
