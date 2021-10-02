@@ -1,5 +1,3 @@
-
-
 use dirty_fsm::{Action, ActionFlag};
 use raylib::{color::Color, prelude::RaylibDraw};
 use tracing::{debug, trace};
@@ -7,6 +5,7 @@ use tracing::{debug, trace};
 use crate::{
     context::GameContext,
     utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::ScreenSpaceRender},
+    GameConfig,
 };
 
 use super::{Scenes, ScreenError};
@@ -38,7 +37,7 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on FsmErrorScreen");
-        self.render_screen_space(&mut context.renderer.borrow_mut());
+        self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
         Ok(ActionFlag::Continue)
     }
 
@@ -49,7 +48,7 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
 }
 
 impl ScreenSpaceRender for FsmErrorScreen {
-    fn render_screen_space(&self, raylib: &mut HackedRaylibHandle) {
+    fn render_screen_space(&self, raylib: &mut HackedRaylibHandle, config: &GameConfig) {
         raylib.clear_background(Color::RED);
 
         // Render a warning message

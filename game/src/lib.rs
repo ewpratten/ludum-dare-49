@@ -158,7 +158,10 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         raylib_thread = thread;
 
         // Build the game context
-        context = Box::new(GameContext::new(RefCell::new(rl.into())));
+        context = Box::new(GameContext {
+            renderer: RefCell::new(rl.into()),
+            config: game_config.clone(),
+        });
     }
 
     // Get the main state machine

@@ -5,15 +5,12 @@ use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::GameContext, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -67,7 +64,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on LoadingScreen");
-        self.render_screen_space(&mut context.renderer.borrow_mut());
+        self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
         // Check for a quick skip button in debug builds
         cfg_if! {
@@ -107,6 +104,7 @@ impl ScreenSpaceRender for LoadingScreen {
     fn render_screen_space(
         &self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
+        config: &GameConfig
     ) {
         // Calculate the loading screen fade in/out value
         // This makes the loading screen fade in/out over the duration of the loading screen

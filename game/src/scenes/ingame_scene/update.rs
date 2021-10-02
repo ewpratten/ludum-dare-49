@@ -1,12 +1,13 @@
 use std::ops::Div;
 
 use super::InGameScreen;
-use crate::utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::FrameUpdate};
+use crate::{GameConfig, utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::FrameUpdate}};
 use chrono::Duration;
 use raylib::prelude::*;
 
 impl FrameUpdate for InGameScreen {
-    fn update(&mut self, raylib: &HackedRaylibHandle, delta_seconds: &Duration) {
+    fn update(&mut self, raylib: &HackedRaylibHandle, delta_seconds: &Duration,
+        config: &GameConfig) {
         // Set the camera's offset based on screen size
         self.camera.offset = raylib.get_screen_size().div(Vector2::new(2.0, 1.25));
         self.camera.target = Vector2::new(
