@@ -22,16 +22,19 @@ impl FrameUpdate for InGameScreen {
         self.camera.target = Vector2::new(self.player.position.x, self.camera.target.y);
 
         // Check the only possible keyboard inputs
-        let is_jump = raylib.is_key_pressed(KeyboardKey::KEY_SPACE);
-        let is_dash = raylib.is_key_pressed(KeyboardKey::KEY_LEFT_SHIFT);
-        let is_pause = raylib.is_key_pressed(KeyboardKey::KEY_ESCAPE);
+        let is_jump = raylib.is_key_pressed(KeyboardKey::KEY_SPACE)
+            && !(self.player.current_state == CharacterState::Jumping);
+        let is_dash = raylib.is_key_pressed(KeyboardKey::KEY_LEFT_SHIFT)
+            && !(self.player.current_state == CharacterState::Dashing);
 
         if is_jump {
             self.player.update_player(Some(CharacterState::Jumping));
         } else if is_dash {
             self.player.update_player(Some(CharacterState::Dashing));
         } else {
-            if self.player.current_state != CharacterState::Jumping && self.player.current_state != CharacterState::Dashing {
+            if self.player.current_state != CharacterState::Jumping
+                && self.player.current_state != CharacterState::Dashing
+            {
                 self.player.update_player(Some(CharacterState::Running));
             } else {
                 self.player.update_player(None);
