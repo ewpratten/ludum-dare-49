@@ -51,6 +51,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         delta: &chrono::Duration,
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
+        puffin::profile_function!();
         trace!("execute() called on InGameScreen");
 
         // Grab exclusive access to the renderer

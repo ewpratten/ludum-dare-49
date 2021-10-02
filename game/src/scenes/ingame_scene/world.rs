@@ -14,6 +14,7 @@ impl WorldSpaceRender for InGameScreen {
         raylib: &mut RaylibMode2D<'_, HackedRaylibHandle>,
         config: &GameConfig,
     ) {
+        puffin::profile_function!();
         // Render the player
         render_character_in_camera_space(raylib, &self.player, &config);
 

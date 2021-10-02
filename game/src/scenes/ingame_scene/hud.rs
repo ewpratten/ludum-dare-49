@@ -8,6 +8,7 @@ impl ScreenSpaceRender for InGameScreen {
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
         config: &GameConfig
     ) {
+        puffin::profile_function!();
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
 
