@@ -42,6 +42,8 @@ pub struct FinalShaderConfig {
     pub pixel_scale: f32,
     pub warp_factor: f32,
     pub scanline_darkness: f32,
+    pub bloom_samples: f32,
+    pub bloom_quality: f32,
 }
 
 impl FinalShaderConfig {

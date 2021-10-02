@@ -186,12 +186,19 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
     let mut pixel_shader = ShaderWrapper::new(
         None,
         Some(StaticGameData::get("shaders/pixelart.fs")).expect("Failed to load pixelart.fs"),
-        vec!["viewport", "pixelScale", "warpFactor", "scanlineDarkness"],
+        vec![
+            "viewport",
+            "pixelScale",
+            "warpFactor",
+            "scanlineDarkness",
+            "bloomSamples",
+            "bloomQuality",
+        ],
         &mut context.renderer.borrow_mut(),
         &raylib_thread,
     )?;
 
-    info!("Starting the render loop");
+
     while !context.renderer.borrow().window_should_close() {
         // Profile the main game loop
         puffin::profile_scope!("main_loop");
@@ -222,6 +229,8 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         )?;
         pixel_shader.set_variable("warpFactor", pixel_shader_config.warp_factor)?;
         pixel_shader.set_variable("scanlineDarkness", pixel_shader_config.scanline_darkness)?;
+        pixel_shader.set_variable("bloomSamples", pixel_shader_config.bloom_samples)?;
+        pixel_shader.set_variable("bloomQuality", pixel_shader_config.bloom_quality)?;
 
         // Render the game via the pixel shader
         render_to_texture(&mut dynamic_texture, || {

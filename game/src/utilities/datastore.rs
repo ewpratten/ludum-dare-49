@@ -65,3 +65,14 @@ pub fn load_texture_from_internal_data(
 
     Ok(texture)
 }
+
+pub fn load_tilemap_from_internal_data(&str path)
+    -> Result<Texture2D, TiledError> {
+
+        let temp_dir = tempdir()?;
+        let tmp_path = temp_dir.path().join(Path::new(path).file_name().unwrap());
+
+        std::fs::write(
+            &tmp_path
+        )
+}
