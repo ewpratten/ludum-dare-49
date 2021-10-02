@@ -100,7 +100,13 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Render the HUD
         self.render_screen_space(&mut renderer, &context.config);
 
-        Ok(ActionFlag::Continue)
+        if renderer.is_key_pressed(KeyboardKey::KEY_ESCAPE) {
+            Ok(ActionFlag::SwitchState(Scenes::PauseScreen))
+        } else {
+            Ok(ActionFlag::Continue)
+        }
+
+
     }
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
