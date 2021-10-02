@@ -38,7 +38,7 @@ impl MainCharacter {
             movement_force: Vector2::zero(),
             velocity: Vector2::zero(),
             base_velocity: Vector2::new(0.0, GRAVITY_PPS),
-            size: Vector2::new(100.0, 100.0),
+            size: Vector2::new(80.0, 100.0),
             sprite_sheet: AnimatedSpriteSheet::new(
                 sprite_sheet,
                 Vector2::new(300.0, 300.0),
@@ -51,12 +51,13 @@ impl MainCharacter {
         }
     }
 
+    #[must_use]
     pub fn update_player(
         &mut self,
         state: Option<CharacterState>,
         colliders: &Vec<Rectangle>,
         level_height_offset: f32,
-    ) {
+    ) -> Result<(), ()> {
         if let Some(state) = state {
             // Update the internal state
             if state != self.current_state {
@@ -73,6 +74,14 @@ impl MainCharacter {
         }
 
         // Update the player based on the new velocity
-        modify_player_based_on_forces(self, colliders, level_height_offset).unwrap();
+        modify_player_based_on_forces(self, colliders, level_height_offset)
+    }
+
+    pub fn reset(&mut self) {
+        self.position = Vector2::new(0.0, 0.0);
+        self.velocity = Vector2::zero();
+        self.movement_force = Vector2::zero();
+        self.current_state = CharacterState::default();
+        self.state_set_timestamp = Utc::now();
     }
 }

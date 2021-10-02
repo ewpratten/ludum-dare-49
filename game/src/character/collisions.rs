@@ -8,6 +8,7 @@ use super::{CharacterState, MainCharacter};
 
 pub const GRAVITY_PPS: f32 = 2.0;
 
+#[must_use]
 pub fn modify_player_based_on_forces(
     player: &mut MainCharacter,
     colliders: &Vec<Rectangle>,
@@ -56,16 +57,18 @@ pub fn modify_player_based_on_forces(
         if player.current_state == CharacterState::Jumping
             || player.current_state == CharacterState::Dashing
         {
-            player.update_player(
+            return player.update_player(
                 Some(CharacterState::Running),
                 colliders,
                 level_height_offset,
             );
-            return Ok(());
         }
     }
 
     // Check sideways collisions
+    if player.velocity.y == 0.0 && check_player_colliding_with_colliders(){
+        return Err(());
+    }
 
     // Finally apply the velocity to the player
     player.position += player.velocity;

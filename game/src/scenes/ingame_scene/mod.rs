@@ -28,6 +28,7 @@ pub struct InGameScreen {
     world_background: WorldPaintTexture,
     levels: Vec<Level>,
     current_level_idx: usize,
+    player_dead: bool,
 }
 
 impl InGameScreen {
@@ -48,6 +49,7 @@ impl InGameScreen {
             world_background: WorldPaintTexture::new(background_texture),
             levels,
             current_level_idx: 0,
+            player_dead: false,
         }
     }
 }
@@ -63,7 +65,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         // Set the player to running
         let cur_level = self.levels.get(self.current_level_idx).unwrap();
-        self.player.update_player(
+        let _ = self.player.update_player(
             Some(CharacterState::Running),
             &cur_level.colliders,
             -cur_level.platform_tex.height as f32,
@@ -112,6 +114,10 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         if renderer.is_key_pressed(KeyboardKey::KEY_ESCAPE) {
             Ok(ActionFlag::SwitchState(Scenes::PauseScreen))
+        } else if self.player_dead {
+
+            // TODO: (luna) make this switch to the death screen plz
+            Ok(ActionFlag::SwitchState(Scenes::FsmErrorScreen))
         } else {
             Ok(ActionFlag::Continue)
         }
@@ -119,6 +125,13 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished InGameScreen");
+
+        // Handle resetting if the player dies
+        if self.player_dead {
+            self.player_dead = false;
+            self.player.reset();
+        }
+
         Ok(())
     }
 }
