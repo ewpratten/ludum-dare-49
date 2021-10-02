@@ -2,10 +2,7 @@ use self::{
     fsm_error_screen::FsmErrorScreen, ingame_scene::InGameScreen, loading_screen::LoadingScreen,
     main_menu_screen::MainMenuScreen,
 };
-use crate::{
-    context::GameContext,
-    utilities::{datastore::ResourceLoadError, non_ref_raylib::HackedRaylibHandle},
-};
+use crate::{context::GameContext, utilities::{datastore::{ResourceLoadError, load_level_from_internal_data}, non_ref_raylib::HackedRaylibHandle}};
 use dirty_fsm::StateMachine;
 use raylib::RaylibThread;
 
@@ -40,6 +37,9 @@ pub fn build_screen_state_machine(
     StateMachine<Scenes, ScreenError, GameContext>,
     ScreenError,
 > {
+
+    let levels = vec![load_level_from_internal_data( raylib_handle, &thread, "levels_tmx/test_map.tmx", "levels_tmx/tilemap1.tsx").expect("Could not load test level.")];
+
     let mut machine = StateMachine::new();
     machine.add_action(Scenes::FsmErrorScreen, FsmErrorScreen::new())?;
     machine.add_action(
@@ -47,6 +47,6 @@ pub fn build_screen_state_machine(
         LoadingScreen::new(raylib_handle, thread)?,
     )?;
     machine.add_action(Scenes::MainMenuScreen, MainMenuScreen::new())?;
-    machine.add_action(Scenes::InGameScene, InGameScreen::new())?;
+    machine.add_action(Scenes::InGameScene, InGameScreen::new(levels))?;
     Ok(machine)
 }

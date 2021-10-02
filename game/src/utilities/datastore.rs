@@ -1,6 +1,6 @@
 use std::{io::Write, path::Path};
 
-use raylib::{texture::Texture2D, RaylibHandle, RaylibThread};
+use raylib::{RaylibHandle, RaylibThread, math::Rectangle, texture::Texture2D};
 use tempfile::{tempdir, NamedTempFile};
 use tracing::debug;
 use tiled::*;
@@ -67,10 +67,17 @@ pub fn load_texture_from_internal_data(
 }
 
 // Loading specific to level files.
-pub fn load_map_from_internal_data(path: &str) -> Result<Map, ResourceLoadError> {
+pub fn load_level_from_internal_data(raylib_handle: &mut RaylibHandle, thread: &RaylibThread ,path: &str, tilemap: &str) -> Result<Level, ResourceLoadError> {
 
     let temp_dir = tempdir()?;
-    let tmp_path = temp_dir.path().join(Path::new(path).filename().unwrap());
+    let tmp_path = temp_dir.path().join(Path::new(path).file_name().unwrap());
+
+
+    std::fs::write(&tmp_path,
+        &StaticGameData::get(tilemap)
+        .ok_or(ResourceLoadError::AssetNotFound(tilemap.to_string()))?
+        .data,
+    )?;
 
     std::fs::write(&tmp_path,
         &StaticGameData::get(path)
@@ -78,11 +85,24 @@ pub fn load_map_from_internal_data(path: &str) -> Result<Map, ResourceLoadError>
         .data,
     )?;
 
+    let map = parse_file(Path::new(tmp_path.to_str().unwrap())).expect("Map failed to load");
 
-    let map_file = File::open(tmp_path.to_str())?;
-    let level = parse(map_file).unwrap();
 
-    temp_dir.close()?;
+    let level_texture = raylib_handle.load_texture(&thread, map.image_.image.as_ref().unwrap()
+    .source.as_str()).map_err(ResourceLoadError::Generic).expect("Count not convert to texture2d");
 
-    Ok(level);
+    let level = Level {
+       level_texture
+        // colliders:
+    };
+
+
+    temp_dir.close();
+    Ok(level)
+}
+
+#[derive(Debug)]
+pub struct Level {
+    pub level_texture: Texture2D,
+    // pub colliders: Layer,
 }
