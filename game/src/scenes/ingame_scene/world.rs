@@ -22,10 +22,23 @@ impl WorldSpaceRender for InGameScreen {
         let cur_level = self.levels.get(self.current_level_idx).unwrap();
 
         // Render the world background
-        // self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+        cur_level.background_tex.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
 
         // Render the platform layer
-        raylib.draw_texture_v(&cur_level.platform_tex, Vector2::new(WORLD_LEVEL_X_OFFSET, -cur_level.platform_tex.height as f32), Color::WHITE);
+        raylib.draw_texture_v(
+            &cur_level.platform_tex,
+            Vector2::new(WORLD_LEVEL_X_OFFSET, -cur_level.platform_tex.height as f32),
+            Color::WHITE,
+        );
+
+        if config.debug_view {
+            for collider in &cur_level.colliders {
+                let mut translated_collider = collider.clone();
+                translated_collider.y += -cur_level.platform_tex.height as f32;
+                translated_collider.x += WORLD_LEVEL_X_OFFSET;
+                raylib.draw_rectangle_lines_ex(translated_collider, 5, Color::RED);
+            }
+        }
 
         // Render the floor as a line
         let screen_world_zero = raylib.get_screen_to_world2D(Vector2::zero(), self.camera);
@@ -39,7 +52,6 @@ impl WorldSpaceRender for InGameScreen {
             5,
             config.colors.white,
         );
-
 
         // Render the player
         render_character_in_camera_space(raylib, &self.player, &config);

@@ -74,7 +74,7 @@ use std::{cell::RefCell, sync::mpsc::TryRecvError};
 
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use utilities::discord::DiscordConfig;
 
 use crate::{
@@ -224,6 +224,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                 .is_key_pressed(KeyboardKey::KEY_F3)
             {
                 game_config.debug_view = !game_config.debug_view;
+                warn!("Debug view set: {}", game_config.debug_view);
             }
         }
 
