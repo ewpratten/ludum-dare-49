@@ -21,7 +21,8 @@ pub struct MainMenuScreen {
 
     is_start_pressed: bool, //Is start button pressed
     is_htp_pressed: bool, //Is how to play button pressed
-    is_options_pressed: bool //Is options button pressed
+    is_options_pressed: bool, //Is options button pressed
+    is_quit_pressed: bool //Is quit button pressed
 
 }
 
@@ -31,7 +32,8 @@ impl MainMenuScreen {
         Self {
             is_start_pressed: false,
             is_htp_pressed: false,
-            is_options_pressed: false
+            is_options_pressed: false,
+            is_quit_pressed: false
         }
     }
 }
@@ -65,6 +67,9 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         else if self.is_options_pressed {
             Ok(ActionFlag::SwitchState(Scenes::OptionsScreen))
         }
+        else if self.is_quit_pressed {
+            panic!();
+        }
         else {
             Ok(ActionFlag::Continue)
         }
@@ -75,6 +80,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         self.is_start_pressed = false;
         self.is_htp_pressed = false;
         self.is_options_pressed = false;
+        self.is_quit_pressed = false;
         Ok(())
     }
 }
@@ -330,6 +336,69 @@ impl ScreenSpaceRender for MainMenuScreen {
                 25,
                 Color::WHITE,
             );
+
+
+        }
+
+        // QUIT
+        if Rectangle::new(80.0, 445.0, 65.0, 20.0).check_collision_point_rec(mouse_position) {
+            raylib.draw_text(
+
+                "QUIT",
+                83,
+                450,
+                25,
+                Color::RED,
+            );
+            raylib.draw_text(
+
+                "QUIT",
+                77,
+                450,
+                25,
+                Color::BLUE,
+            );
+            raylib.draw_text(
+
+                "QUIT",
+                80,
+                450,
+                25,
+                Color::WHITE,
+            );
+
+            if mouse_pressed{
+                self.is_quit_pressed = true;
+            }
+
+        }
+        else{
+            raylib.draw_text(
+
+                "QUIT",
+                81,
+                450,
+                25,
+                Color::RED,
+            );
+            raylib.draw_text(
+
+                "QUIT",
+                79,
+                450,
+                25,
+                Color::BLUE,
+            );
+            raylib.draw_text(
+
+                "QUIT",
+                80,
+                450,
+                25,
+                Color::WHITE,
+            );
+
+
         }
     }
 }
