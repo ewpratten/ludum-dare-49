@@ -18,7 +18,7 @@ use tracing::{debug, trace};
 mod hud;
 pub mod level;
 mod update;
-mod world;
+pub mod world;
 
 #[derive(Debug)]
 pub struct InGameScreen {
@@ -43,7 +43,7 @@ impl InGameScreen {
                 rotation: 0.0,
                 zoom: 1.0,
             },
-            player: MainCharacter::new(Vector2::new(0.0, -80.0), player_sprite_sheet),
+            player: MainCharacter::new(Vector2::new(0.0, -85.0), player_sprite_sheet),
             world_background: WorldPaintTexture::new(background_texture),
             levels,
             current_level_idx: 0,
@@ -61,7 +61,12 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         debug!("Running InGameScreen for the first time");
 
         // Set the player to running
-        self.player.update_player(Some(CharacterState::Running));
+        let cur_level = self.levels.get(self.current_level_idx).unwrap();
+        self.player.update_player(
+            Some(CharacterState::Running),
+            &cur_level.colliders,
+            -cur_level.platform_tex.height as f32,
+        );
 
         Ok(())
     }
