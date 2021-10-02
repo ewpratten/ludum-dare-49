@@ -3,6 +3,7 @@ use std::ops::{Div, Sub};
 use cfg_if::cfg_if;
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use raylib::prelude::*;
 
 use crate::{GameConfig, context::GameContext, utilities::{
@@ -13,7 +14,7 @@ use crate::{GameConfig, context::GameContext, utilities::{
     }};
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, info, trace};
+use tracing::{debug, info, error, trace};
 
 /// Defines how long the loading screen should be displayed.
 const LOADING_SCREEN_DURATION_SECONDS: u8 = 3;
@@ -49,8 +50,17 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running LoadingScreen for the first time");
+
+        // Update discord
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default().details("loading...").assets(
+                Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+            ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
 
         // Keep track of when this screen is opened
         self.start_timestamp = Some(Utc::now());
