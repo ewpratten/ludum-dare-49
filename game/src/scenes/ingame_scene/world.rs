@@ -12,7 +12,7 @@ pub const WORLD_LEVEL_X_OFFSET: f32 = 200.0;
 
 impl WorldSpaceRender for InGameScreen {
     fn render_world_space(
-        &self,
+        &mut self,
         raylib: &mut RaylibMode2D<'_, HackedRaylibHandle>,
         config: &GameConfig,
     ) {
