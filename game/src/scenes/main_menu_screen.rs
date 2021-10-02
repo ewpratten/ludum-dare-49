@@ -5,16 +5,13 @@ use dirty_fsm::{Action, ActionFlag};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::GameContext, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -47,7 +44,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         context: &GameContext,
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on MainMenuScreen");
-        self.render_screen_space(&mut context.renderer.borrow_mut());
+        self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
         // TODO: TEMP
         if context.renderer.borrow_mut().is_key_pressed(KeyboardKey::KEY_SPACE) {
@@ -67,6 +64,7 @@ impl ScreenSpaceRender for MainMenuScreen {
     fn render_screen_space(
         &self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
+        config: &GameConfig
     ) {
         // Render the background
         raylib.clear_background(Color::BLACK);

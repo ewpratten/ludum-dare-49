@@ -1,6 +1,7 @@
 //! Contains the general configuration data for the game
 //! This data is immutable, and should only be edited by hand
 
+use raylib::color::Color;
 use rust_embed::EmbeddedFile;
 
 /// Defines one of the game's authors
@@ -11,12 +12,22 @@ pub struct Author {
     pub roles: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ColorTheme {
+    pub red: Color,
+    pub blue: Color,
+    pub green: Color,
+    pub yellow: Color,
+    pub pink: Color,
+    pub background: Color,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct GameConfig {
     pub name: String,
-    // pub authors: Vec<Author>,
     pub base_window_size: (i32, i32),
     pub sentry_dsn: String,
+    pub colors: ColorTheme,
 }
 
 impl GameConfig {
@@ -31,6 +42,8 @@ pub struct FinalShaderConfig {
     pub pixel_scale: f32,
     pub warp_factor: f32,
     pub scanline_darkness: f32,
+    pub bloom_samples: f32,
+    pub bloom_quality: f32,
 }
 
 impl FinalShaderConfig {

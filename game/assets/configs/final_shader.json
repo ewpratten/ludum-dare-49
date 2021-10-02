@@ -1,5 +1,7 @@
 {
     "pixel_scale": 1.0,
-    "warp_factor": 0.5,
-    "scanline_darkness": 0.5
+    "warp_factor": 0.65,
+    "scanline_darkness": 0.55,
+    "bloom_samples": 5.0,
+    "bloom_quality": 2.5
 }
