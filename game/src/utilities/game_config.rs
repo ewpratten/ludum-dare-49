@@ -30,6 +30,9 @@ pub struct GameConfig {
     pub sentry_dsn: String,
     pub colors: ColorTheme,
     pub animation_fps: usize,
+
+    #[serde(skip)]
+    pub debug_view: bool
 }
 
 impl GameConfig {

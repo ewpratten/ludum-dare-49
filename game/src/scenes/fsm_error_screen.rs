@@ -1,6 +1,7 @@
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use raylib::{color::Color, prelude::RaylibDraw};
-use tracing::{debug, trace};
+use tracing::{debug, error, trace};
 
 use crate::{
     context::GameContext,
@@ -26,8 +27,20 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running FsmErrorScreen for the first time");
+
+        // Update discord
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default()
+                .details("IT FUCKING DIED")
+                .assets(
+                    Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+                ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
+
         Ok(())
     }
 

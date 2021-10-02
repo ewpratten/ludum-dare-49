@@ -45,6 +45,15 @@
 			"env": {
 				"RUST_LOG": "trace"
 			}
+		},
+		{
+			"type": "cargo",
+			"subcommand": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"label": "Rust: cargo build - ludum-dare-49"
 		}
 	]
 }
