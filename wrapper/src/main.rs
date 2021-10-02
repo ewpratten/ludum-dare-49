@@ -7,7 +7,7 @@ async fn main() {
 
     // Load the general config for the game
     // This happens here so we can properly track sentry events
-    let game_config = GameConfig::load(
+    let mut game_config = GameConfig::load(
         StaticGameData::get("configs/application.json").expect("Failed to load application.json"),
     ).unwrap();
 
@@ -22,5 +22,5 @@ async fn main() {
     ));
 
     // Start the game
-    game_begin(&game_config).await.unwrap();
+    game_begin(&mut game_config).await.unwrap();
 }

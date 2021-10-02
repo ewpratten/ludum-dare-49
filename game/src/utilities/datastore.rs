@@ -15,6 +15,8 @@ pub struct StaticGameData;
 #[derive(Debug, Error)]
 pub enum ResourceLoadError {
     #[error(transparent)]
+    JsonDeser(#[from] serde_json::Error),
+    #[error(transparent)]
     Io(#[from] std::io::Error),
     #[error("Could not load embedded asset: {0}")]
     AssetNotFound(String),

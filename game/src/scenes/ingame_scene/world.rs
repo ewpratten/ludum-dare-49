@@ -8,6 +8,8 @@ use crate::{
 };
 use raylib::prelude::*;
 
+pub const WORLD_LEVEL_X_OFFSET: f32 = 200.0;
+
 impl WorldSpaceRender for InGameScreen {
     fn render_world_space(
         &self,
@@ -15,8 +17,15 @@ impl WorldSpaceRender for InGameScreen {
         config: &GameConfig,
     ) {
         puffin::profile_function!();
-        // Render the player
-        render_character_in_camera_space(raylib, &self.player, &config);
+
+        // Get the current level
+        let cur_level = self.levels.get(self.current_level_idx).unwrap();
+
+        // Render the world background
+        // self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+
+        // Render the platform layer
+        raylib.draw_texture_v(&cur_level.platform_tex, Vector2::new(WORLD_LEVEL_X_OFFSET, -cur_level.platform_tex.height as f32), Color::WHITE);
 
         // Render the floor as a line
         let screen_world_zero = raylib.get_screen_to_world2D(Vector2::zero(), self.camera);
@@ -30,5 +39,9 @@ impl WorldSpaceRender for InGameScreen {
             5,
             config.colors.white,
         );
+
+
+        // Render the player
+        render_character_in_camera_space(raylib, &self.player, &config);
     }
 }
