@@ -21,6 +21,7 @@ pub enum CharacterState {
 
 #[derive(Debug)]
 pub struct MainCharacter {
+    pub start_position: Vector2,
     pub position: Vector2,
     pub movement_force: Vector2,
     pub base_velocity: Vector2,
@@ -34,6 +35,7 @@ pub struct MainCharacter {
 impl MainCharacter {
     pub fn new(position: Vector2, sprite_sheet: Texture2D) -> Self {
         Self {
+            start_position: position.clone(),
             position,
             movement_force: Vector2::zero(),
             velocity: Vector2::zero(),
@@ -78,7 +80,7 @@ impl MainCharacter {
     }
 
     pub fn reset(&mut self) {
-        self.position = Vector2::new(0.0, 0.0);
+        self.position = self.start_position;
         self.velocity = Vector2::zero();
         self.movement_force = Vector2::zero();
         self.current_state = CharacterState::default();
