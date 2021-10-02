@@ -2,19 +2,24 @@ use std::ops::{Div, Sub};
 
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::GameContext, utilities::{
+use crate::{
+    context::GameContext,
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, info, trace};
+use tracing::{debug, error, info, trace};
 
 #[derive(Debug)]
 pub struct MainMenuScreen {}
@@ -32,8 +37,17 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running MainMenuScreen for the first time");
+
+        // Update discord
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default().details("main menu").assets(
+                Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+            ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
 
         Ok(())
     }
@@ -47,7 +61,11 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
         // TODO: TEMP
-        if context.renderer.borrow_mut().is_key_pressed(KeyboardKey::KEY_SPACE) {
+        if context
+            .renderer
+            .borrow_mut()
+            .is_key_pressed(KeyboardKey::KEY_SPACE)
+        {
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else {
             Ok(ActionFlag::Continue)
@@ -64,7 +82,7 @@ impl ScreenSpaceRender for MainMenuScreen {
     fn render_screen_space(
         &self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
-        config: &GameConfig
+        config: &GameConfig,
     ) {
         // Render the background
         raylib.clear_background(Color::BLACK);
