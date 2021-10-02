@@ -48,7 +48,7 @@ impl Action<Scenes, ScreenError, GameContext> for FsmErrorScreen {
 }
 
 impl ScreenSpaceRender for FsmErrorScreen {
-    fn render_screen_space(&self, raylib: &mut HackedRaylibHandle, config: &GameConfig) {
+    fn render_screen_space(&mut self, raylib: &mut HackedRaylibHandle, config: &GameConfig) {
         raylib.clear_background(Color::RED);
 
         // Render a warning message

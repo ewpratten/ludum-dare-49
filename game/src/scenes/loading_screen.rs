@@ -102,7 +102,7 @@ impl Action<Scenes, ScreenError, GameContext> for LoadingScreen {
 
 impl ScreenSpaceRender for LoadingScreen {
     fn render_screen_space(
-        &self,
+        &mut self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
         config: &GameConfig
     ) {

@@ -10,7 +10,7 @@ use raylib::prelude::*;
 
 impl WorldSpaceRender for InGameScreen {
     fn render_world_space(
-        &self,
+        &mut self,
         raylib: &mut RaylibMode2D<'_, HackedRaylibHandle>,
         config: &GameConfig,
     ) {
