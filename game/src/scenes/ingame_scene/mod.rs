@@ -1,7 +1,11 @@
 use dirty_fsm::{Action, ActionFlag};
 use raylib::prelude::*;
 
-use crate::{character::MainCharacter, context::GameContext, utilities::render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender}};
+use crate::{
+    character::MainCharacter,
+    context::GameContext,
+    utilities::render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender},
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, trace};
@@ -13,7 +17,7 @@ mod world;
 #[derive(Debug)]
 pub struct InGameScreen {
     camera: Camera2D,
-    player: MainCharacter
+    player: MainCharacter,
 }
 
 impl InGameScreen {
@@ -26,7 +30,7 @@ impl InGameScreen {
                 rotation: 0.0,
                 zoom: 1.0,
             },
-            player: MainCharacter::new(Vector2::zero()),
+            player: MainCharacter::new(Vector2::new(0.0, -45.0)),
         }
     }
 }
