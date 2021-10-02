@@ -1,4 +1,5 @@
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use raylib::prelude::*;
 
 use crate::{
@@ -13,7 +14,7 @@ use crate::{
 use self::level::Level;
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, trace};
+use tracing::{debug, error, trace};
 
 mod hud;
 pub mod level;
@@ -57,7 +58,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running InGameScreen for the first time");
 
         // Set the player to running
@@ -67,6 +68,15 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
             &cur_level.colliders,
             -cur_level.platform_tex.height as f32,
         );
+
+        // Update discord
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default().details("in game").assets(
+                Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+            ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
 
         Ok(())
     }
@@ -105,8 +115,6 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         } else {
             Ok(ActionFlag::Continue)
         }
-
-
     }
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {

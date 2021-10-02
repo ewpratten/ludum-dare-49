@@ -1,6 +1,7 @@
 #![feature(derive_default_enum)]
 #![feature(custom_inner_attributes)]
 #![feature(stmt_expr_attributes)]
+#![feature(async_await)]
 #![feature(c_variadic)]
 #![deny(unsafe_code)]
 #![warn(
@@ -69,7 +70,7 @@
 )]
 #![clippy::msrv = "1.57.0"]
 
-use std::cell::RefCell;
+use std::{cell::RefCell, sync::mpsc::TryRecvError};
 
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
@@ -97,6 +98,8 @@ extern crate serde;
 extern crate approx;
 #[macro_use]
 extern crate num_derive;
+#[macro_use]
+extern crate async_trait;
 
 mod context;
 mod discord_rpc;
@@ -133,10 +136,13 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     };
     maybe_set_discord_presence(
         &discord_rpc,
-        ActivityBuilder::default().details("Testing..."),
+        ActivityBuilder::default().details("Game starting"),
     )
     .await
     .unwrap();
+
+    // Build an MPSC for the game to send rich presence data to discord
+    let (send_discord_rpc, recv_discord_rpc) = std::sync::mpsc::channel();
 
     let context;
     let raylib_thread;
@@ -161,6 +167,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         context = Box::new(GameContext {
             renderer: RefCell::new(rl.into()),
             config: game_config.clone(),
+            discord_rpc_send: send_discord_rpc,
         });
     }
 
@@ -198,7 +205,6 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         &raylib_thread,
     )?;
 
-
     while !context.renderer.borrow().window_should_close() {
         // Profile the main game loop
         puffin::profile_scope!("main_loop");
@@ -212,13 +218,21 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         // If in dev mode, allow a debug key
         #[cfg(debug_assertions)]
         {
-            if context.renderer.borrow().is_key_pressed(KeyboardKey::KEY_F3) {
+            if context
+                .renderer
+                .borrow()
+                .is_key_pressed(KeyboardKey::KEY_F3)
+            {
                 game_config.debug_view = !game_config.debug_view;
             }
         }
 
         // Handle fullscreen shortcut
-        if context.renderer.borrow().is_key_pressed(KeyboardKey::KEY_F11) {
+        if context
+            .renderer
+            .borrow()
+            .is_key_pressed(KeyboardKey::KEY_F11)
+        {
             context.renderer.borrow_mut().toggle_fullscreen();
         }
 
@@ -272,6 +286,22 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         #[allow(unsafe_code)]
         unsafe {
             raylib::ffi::EndDrawing();
+        }
+
+        // Try to update discord
+        match recv_discord_rpc.try_recv() {
+            Ok(activity) => {
+                if let Some(activity) = activity {
+                    if let Err(e) = maybe_set_discord_presence(&discord_rpc, activity).await {
+                        error!("Failed to update discord presence: {:?}", e);
+                    }
+                }
+            }
+            Err(TryRecvError::Empty) => {}
+            Err(TryRecvError::Disconnected) => {
+                error!("Discord RPC channel disconnected");
+                continue;
+            }
         }
     }
     Ok(())
