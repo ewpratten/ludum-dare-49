@@ -44,18 +44,6 @@ void main() {
   // Calculate a UV for this new blocky pixel
   vec2 pixelatedUV = vec2(dx * floor(baseUV.x / dx), dy * floor(baseUV.y / dy));
 
-  // --- BEGIN BLOOM EFFECT ---
-
-  vec2 sizeFactor = vec2(1) / viewport * bloomQuality;
-  vec4 textureSum = vec4(0);
-
-  const int range = 2;
-  for (int x = -range; x <= range; x++) {
-    for (int y = -range; y <= range; y++) {
-      textureSum += texture(texture0, fragTexCoord + vec2(x, y) * sizeFactor);
-    }
-  }
-
   // --- BEGIN CRT SHADER ---
 
   // Warp the UVs of the pixelated texture
@@ -74,13 +62,25 @@ void main() {
     return;
   }
 
+  // --- BEGIN BLOOM EFFECT ---
+
+  vec2 sizeFactor = vec2(1) / viewport * bloomQuality;
+  vec4 textureSum = vec4(0);
+
+  const int range = 2;
+  for (int x = -range; x <= range; x++) {
+    for (int y = -range; y <= range; y++) {
+      textureSum += texture(texture0, warpedUV + vec2(x, y) * sizeFactor);
+    }
+  }
+
   // Determine factor of if we are rendering on a scanline
   float scanlineFactor =
       abs(sin(fragTexCoord.y * viewport.y) * 0.5 * scanlineDarkness);
 
   // Build the final pixel
   vec4 texWithBloom =
-      ((textureSum / (bloomSamples * bloomSamples)) + texture0) * colDiffuse;
+      ((textureSum / (bloomSamples * bloomSamples)) + texture(texture0, warpedUV)) * colDiffuse;
   finalColor = vec4(
-      mix(texture(texWithBloom, warpedUV).rgb, vec3(0.0), scanlineFactor), 1.0);
+      mix(texWithBloom.rgb, vec3(0.0), scanlineFactor), 1.0);
 }
