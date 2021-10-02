@@ -25,6 +25,17 @@ impl FrameUpdate for InGameScreen {
         let is_jump = raylib.is_key_pressed(KeyboardKey::KEY_SPACE);
         let is_dash = raylib.is_key_pressed(KeyboardKey::KEY_LEFT_SHIFT);
         let is_pause = raylib.is_key_pressed(KeyboardKey::KEY_ESCAPE);
+        //let is_left_click = raylib.is_mouse_button_down(MouseButton::MOUSE_LEFT_BUTTON);
+        //let mouse_position: Vector2 = raylib.get_mouse_position();
+
+        //Stoping the character.
+        if is_pause {
+            //println!("Pause : {}", is_pause);
+            self.player.set_state(CharacterState::Halt);
+        } else if is_pause == false {
+            //println!("Pause : {}", is_pause);
+            self.player.set_state(CharacterState::Running);
+        }
 
         if is_jump {
             self.player.apply_force(Vector2::new(0.0, -30.0));
@@ -37,6 +48,7 @@ impl FrameUpdate for InGameScreen {
                 self.player.set_state(CharacterState::Running);
             }
         }
+
         self.player.update_gravity();
     }
 }
