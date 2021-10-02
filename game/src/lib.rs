@@ -154,7 +154,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                 game_config.base_window_size.0,
                 game_config.base_window_size.1,
             )
-            .title(&game_config.name)
+            .title(&format!("[{}]", game_config.name))
             .vsync()
             .msaa_4x()
             .resizable()
