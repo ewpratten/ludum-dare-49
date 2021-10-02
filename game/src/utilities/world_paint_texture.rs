@@ -11,6 +11,7 @@ use raylib::{
 
 use super::non_ref_raylib::HackedRaylibHandle;
 
+#[derive(Debug)]
 pub struct WorldPaintTexture {
     texture: Texture2D,
 }
@@ -39,7 +40,7 @@ impl WorldPaintTexture {
         let left_tile_x =
             (left_edge_distance / self.texture.width as f32).floor() * self.texture.width as f32;
         let right_tile_x =
-            (right_edge_distance / self.texture.width as f32).ceil() * self.texture.width as f32;
+        left_tile_x + self.texture.width as f32;
 
         // Render the tiles
         raylib.draw_texture_v(
