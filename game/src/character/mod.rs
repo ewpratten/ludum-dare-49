@@ -2,7 +2,10 @@ pub mod collisions;
 pub mod render;
 
 use chrono::{DateTime, Utc};
-use raylib::{math::Vector2, texture::Texture2D};
+use raylib::{
+    math::{Rectangle, Vector2},
+    texture::Texture2D,
+};
 
 use crate::utilities::anim_render::AnimatedSpriteSheet;
 
@@ -48,7 +51,12 @@ impl MainCharacter {
         }
     }
 
-    pub fn update_player(&mut self, state: Option<CharacterState>) {
+    pub fn update_player(
+        &mut self,
+        state: Option<CharacterState>,
+        colliders: &Vec<Rectangle>,
+        level_height_offset: f32,
+    ) {
         if let Some(state) = state {
             // Update the internal state
             if state != self.current_state {
@@ -65,6 +73,6 @@ impl MainCharacter {
         }
 
         // Update the player based on the new velocity
-        modify_player_based_on_forces(self).unwrap();
+        modify_player_based_on_forces(self, colliders, level_height_offset).unwrap();
     }
 }
