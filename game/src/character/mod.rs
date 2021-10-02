@@ -35,7 +35,7 @@ impl MainCharacter {
             movement_force: Vector2::zero(),
             velocity: Vector2::zero(),
             base_velocity: Vector2::new(0.0, GRAVITY_PPS),
-            size: Vector2::new(100.0, 130.0),
+            size: Vector2::new(100.0, 100.0),
             sprite_sheet: AnimatedSpriteSheet::new(
                 sprite_sheet,
                 Vector2::new(300.0, 300.0),
