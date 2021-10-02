@@ -43,7 +43,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         debug!("Running InGameScreen for the first time");
 
         // Set the player to running
-        self.player.set_state(CharacterState::Running);
+        self.player.update_player(Some(CharacterState::Running));
 
         Ok(())
     }

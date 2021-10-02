@@ -27,16 +27,15 @@ impl FrameUpdate for InGameScreen {
         let is_pause = raylib.is_key_pressed(KeyboardKey::KEY_ESCAPE);
 
         if is_jump {
-            self.player.apply_force(Vector2::new(0.0, -30.0));
-            self.player.set_state(CharacterState::Jumping);
+            self.player.update_player(Some(CharacterState::Jumping));
         } else if is_dash {
-            self.player.apply_force(Vector2::new(40.0, -10.0));
-            self.player.set_state(CharacterState::Dashing);
+            self.player.update_player(Some(CharacterState::Dashing));
         } else {
-            if self.player.current_state != CharacterState::Jumping {
-                self.player.set_state(CharacterState::Running);
+            if self.player.current_state != CharacterState::Jumping && self.player.current_state != CharacterState::Dashing {
+                self.player.update_player(Some(CharacterState::Running));
+            } else {
+                self.player.update_player(None);
             }
         }
-        self.player.update_gravity();
     }
 }

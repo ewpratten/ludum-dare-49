@@ -106,7 +106,7 @@ pub use utilities::{datastore::StaticGameData, game_config::GameConfig};
 mod character;
 
 /// The game entrypoint
-pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std::error::Error>> {
     // Set up profiling
     #[cfg(debug_assertions)]
     let _puffin_server =
@@ -208,6 +208,19 @@ pub async fn game_begin(game_config: &GameConfig) -> Result<(), Box<dyn std::err
         dynamic_texture
             .update(&mut context.renderer.borrow_mut(), &raylib_thread)
             .unwrap();
+
+        // If in dev mode, allow a debug key
+        #[cfg(debug_assertions)]
+        {
+            if context.renderer.borrow().is_key_pressed(KeyboardKey::KEY_F3) {
+                game_config.debug_view = !game_config.debug_view;
+            }
+        }
+
+        // Handle fullscreen shortcut
+        if context.renderer.borrow().is_key_pressed(KeyboardKey::KEY_F11) {
+            context.renderer.borrow_mut().toggle_fullscreen();
+        }
 
         // Switch into draw mode the unsafe way (using unsafe code here to avoid borrow checker hell)
         #[allow(unsafe_code)]
