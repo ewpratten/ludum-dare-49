@@ -71,9 +71,11 @@ impl ScreenSpaceRender for OptionsScreen {
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
         config: &GameConfig
     ) {
+        let screen_size = raylib.get_screen_size();
 
         // Render the background
         raylib.clear_background(Color::BLACK);
+        raylib.draw_rectangle_lines(0, 0, screen_size.x as i32, screen_size.y as i32, config.colors.white);
 
         let screen_size = raylib.get_screen_size();
 
