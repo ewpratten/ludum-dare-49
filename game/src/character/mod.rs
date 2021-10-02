@@ -17,7 +17,6 @@ pub enum CharacterState {
     Running,
     Jumping,
     Dashing,
-    Halt,
 }
 
 #[derive(Debug)]

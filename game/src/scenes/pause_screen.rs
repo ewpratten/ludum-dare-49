@@ -157,18 +157,6 @@ impl ScreenSpaceRender for PauseScreen {
             Color::WHITE
         );
 
-        raylib.draw_text(
-            &format!(
-                "Position x: {} Position y: {}",
-                mouse_position.x,
-                mouse_position.y
-            ),
-            screen_size.x as i32 / 30,
-            screen_size.y as i32 / 30,
-            20,
-            Color::WHITE
-        );
-
         if Rectangle::new(390.0,464.0,200.0,50.0).check_collision_point_rec(mouse_position) {
             raylib.draw_text(
                 "Main Menu",

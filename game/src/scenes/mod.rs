@@ -1,5 +1,5 @@
 use self::{
-  pause_screen::PauseScreen
+  pause_screen::PauseScreen,
     fsm_error_screen::FsmErrorScreen,
     ingame_scene::{level::loader::load_all_levels, InGameScreen},
     loading_screen::LoadingScreen,
