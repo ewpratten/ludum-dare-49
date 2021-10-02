@@ -15,8 +15,9 @@ impl WorldSpaceRender for InGameScreen {
         config: &GameConfig,
     ) {
         puffin::profile_function!();
-        // Render the player
-        render_character_in_camera_space(raylib, &self.player, &config);
+
+        // Render the world background
+        self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
 
         // Render the floor as a line
         let screen_world_zero = raylib.get_screen_to_world2D(Vector2::zero(), self.camera);
@@ -30,5 +31,9 @@ impl WorldSpaceRender for InGameScreen {
             5,
             config.colors.white,
         );
+
+
+        // Render the player
+        render_character_in_camera_space(raylib, &self.player, &config);
     }
 }

@@ -46,6 +46,8 @@ pub fn build_screen_state_machine(
     // Load the various textures needed by the states
     let player_sprite_sheet =
         load_texture_from_internal_data(raylib_handle, thread, "character/player_run.png").unwrap();
+    let world_background =
+        load_texture_from_internal_data(raylib_handle, thread, "default-texture.png").unwrap();
 
     // Set up the state machine
     let mut machine = StateMachine::new();
@@ -55,6 +57,6 @@ pub fn build_screen_state_machine(
         LoadingScreen::new(raylib_handle, thread)?,
     )?;
     machine.add_action(Scenes::MainMenuScreen, MainMenuScreen::new())?;
-    machine.add_action(Scenes::InGameScene, InGameScreen::new(player_sprite_sheet))?;
+    machine.add_action(Scenes::InGameScene, InGameScreen::new(player_sprite_sheet, world_background))?;
     Ok(machine)
 }
