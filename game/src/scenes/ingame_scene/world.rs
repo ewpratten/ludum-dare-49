@@ -22,7 +22,7 @@ impl WorldSpaceRender for InGameScreen {
         let cur_level = self.levels.get(self.current_level_idx).unwrap();
 
         // Render the world background
-        // self.world_background.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+        cur_level.background_tex.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
 
         // Render the platform layer
         raylib.draw_texture_v(

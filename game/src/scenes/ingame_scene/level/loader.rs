@@ -1,9 +1,6 @@
 use raylib::{RaylibHandle, RaylibThread};
 
-use crate::{
-    utilities::datastore::{load_texture_from_internal_data, ResourceLoadError},
-    StaticGameData,
-};
+use crate::{StaticGameData, utilities::{datastore::{load_texture_from_internal_data, ResourceLoadError}, world_paint_texture::WorldPaintTexture}};
 
 use super::Level;
 
@@ -26,13 +23,15 @@ pub fn load_all_levels(
     let mut levels = Vec::new();
 
     for level_name in &level_names {
+
+
         levels.push(Level {
             name: level_name.to_string(),
-            background_tex: load_texture_from_internal_data(
+            background_tex: WorldPaintTexture::new(load_texture_from_internal_data(
                 raylib_handle,
                 thread,
                 &format!("levels/{}/background.png", level_name),
-            )?,
+            )?),
             platform_tex: load_texture_from_internal_data(
                 raylib_handle,
                 thread,
