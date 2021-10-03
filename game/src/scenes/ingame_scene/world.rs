@@ -1,14 +1,18 @@
-use std::ops::Mul;
+use std::ops::{Div, Mul, Sub};
 
 use super::InGameScreen;
 use crate::{
     character::render::render_character_in_camera_space,
-    utilities::{non_ref_raylib::HackedRaylibHandle, render_layer::WorldSpaceRender},
+    utilities::{
+        math::interpolate_exp, non_ref_raylib::HackedRaylibHandle, render_layer::WorldSpaceRender,
+    },
     GameConfig,
 };
 use raylib::prelude::*;
+use tracing::trace;
 
 pub const WORLD_LEVEL_X_OFFSET: f32 = 200.0;
+pub const APPEAR_FADE_DISTANCE: f32 = 15.0;
 
 impl WorldSpaceRender for InGameScreen {
     fn render_world_space(
@@ -31,6 +35,38 @@ impl WorldSpaceRender for InGameScreen {
             &cur_level.platform_tex,
             Vector2::new(WORLD_LEVEL_X_OFFSET, -cur_level.platform_tex.height as f32),
             Color::WHITE,
+        );
+
+        // Calculate the distance between the player and the nearest appearing zone
+        let appear_zone_dist = cur_level
+            .zones
+            .appear
+            .iter()
+            .map(|zone| {
+                Vector2::new(
+                    zone.x + WORLD_LEVEL_X_OFFSET,
+                    zone.y - cur_level.platform_tex.height as f32,
+                )
+                .distance_to(self.player.position) as i32
+            })
+            .min()
+            .unwrap();
+        let opacity = interpolate_exp(
+            (appear_zone_dist as f32).sub(APPEAR_FADE_DISTANCE.div(2.0)).div(APPEAR_FADE_DISTANCE).mul(-1.0),
+            -APPEAR_FADE_DISTANCE..APPEAR_FADE_DISTANCE,
+            0.0..1.0,
+            8.0,
+        );
+        trace!("Appearing values: ({}, {})", appear_zone_dist, opacity);
+
+        // Render the appearing layer
+        raylib.draw_texture_v(
+            &cur_level.appearing_platform_tex,
+            Vector2::new(
+                WORLD_LEVEL_X_OFFSET,
+                -cur_level.appearing_platform_tex.height as f32,
+            ),
+            Color::WHITE.fade(opacity),
         );
 
         #[cfg(all(debug_assertions, feature = "collider_debug"))]
