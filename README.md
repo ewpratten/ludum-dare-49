@@ -13,16 +13,24 @@ All development documentation has been moved to [`DEVELOPERS.md`](./DEVELOPERS.m
 
 ## The Team
 
-This game is developed by a team of 4 students from *Sheridan College* and *Trent University*.
+This game is developed by a team of 6 students from *Sheridan College* and *Trent University*.
 
 - [**Evan Pratten**](https://github.com/ewpratten)
   - Team lead
   - Software developer
+  - Graphics library maintainer
   - Other LD games: [*Micromanaged Mike*](https://ldjam.com/events/ludum-dare/46/micromanaged-mike), [*Deep Breath*](https://github.com/ewpratten/ludum-dare-48)
 - [**Carter Tomlenovich**](https://github.com/hyperliskdev)
   - Software developer
 - [**Marcelo**](https://github.com/SNOWZ7Z)
   - Software developer
-- [**Luna**](https://github.com/LuS404)
+  - Level design
+- [**Luna Sicardi**](https://github.com/LuS404)
   - Software developer
-
+  - UI design
+- **Emilia Frias**
+  - Character art
+  - Animations
+  - Map assets
+- **Kori**
+  - Concept art
