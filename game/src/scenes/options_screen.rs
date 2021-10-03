@@ -43,6 +43,9 @@ impl Action<Scenes, ScreenError, GameContext> for OptionsScreen {
     fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running OptionsScreen for the first time");
 
+        // Rick-roll the user
+        let _ = webbrowser::open("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+
         Ok(())
     }
 
@@ -96,12 +99,22 @@ impl ScreenSpaceRender for OptionsScreen {
         // Render the title
         raylib.draw_rgb_split_text(Vector2::new(40.0, 80.0), "Options", 70, true, Color::WHITE);
 
+        // Render the text
+        raylib.draw_rgb_split_text(
+            Vector2::new(100.0, 300.0),
+            ">> The game controls YOU",
+            45,
+            true,
+            Color::WHITE,
+        );
+
+
         //Back to Menu
         let hovering_back = Rectangle::new(35.0, screen_size.y as f32 - 80.0, 200.0, 40.0)
             .check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(25.0, screen_size.y - 50.0),
-            "Options",
+            "BACK TO MENU",
             25,
             hovering_back,
             Color::WHITE,
