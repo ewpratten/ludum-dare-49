@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use discord_sdk::activity::{ActivityBuilder, Assets};
 use raylib::prelude::*;
@@ -29,6 +30,7 @@ pub struct InGameScreen {
     levels: Vec<Level>,
     current_level_idx: usize,
     player_dead: bool,
+    level_switch_timestamp: DateTime<Utc>,
 }
 
 impl InGameScreen {
@@ -50,6 +52,7 @@ impl InGameScreen {
             levels,
             current_level_idx: 0,
             player_dead: false,
+            level_switch_timestamp: Utc::now(),
         }
     }
 }
@@ -66,6 +69,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Handle cleanup after death
         self.player_dead = false;
         self.player.reset();
+        self.level_switch_timestamp = Utc::now();
 
         // Set the player to running
         let cur_level = self.levels.get(context.current_level).unwrap();
@@ -77,9 +81,12 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         // Update discord
         if let Err(e) = context.discord_rpc_send.send(Some(
-            ActivityBuilder::default().details("in game").assets(
-                Assets::default().large("game-logo-small", Some(context.config.name.clone())),
-            ),
+            ActivityBuilder::default()
+                .details(format!("LVL {}", context.current_level))
+                .assets(
+                    Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+                )
+                .start_timestamp(self.level_switch_timestamp),
         )) {
             error!("Failed to update discord: {}", e);
         }
@@ -94,7 +101,11 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         puffin::profile_function!();
         trace!("execute() called on InGameScreen");
-        self.current_level_idx = context.current_level;
+
+        if self.current_level_idx != context.current_level {
+            self.current_level_idx = context.current_level;
+            self.level_switch_timestamp = Utc::now();
+        }
 
         // Grab exclusive access to the renderer
         let mut renderer = context.renderer.borrow_mut();

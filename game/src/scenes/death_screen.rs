@@ -2,6 +2,7 @@ use std::ops::{Div, Sub};
 
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
@@ -14,7 +15,7 @@ use crate::{GameConfig, context::GameContext, utilities::{
     }};
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, info, trace};
+use tracing::{debug, info, error, trace};
 
 #[derive(Debug)]
 pub struct DeathScreen {
@@ -36,8 +37,18 @@ impl Action<Scenes, ScreenError, GameContext> for DeathScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running DeathScreen for the first time");
+
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default()
+                .details("dead... again")
+                .assets(
+                    Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+                )
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
 
         Ok(())
     }

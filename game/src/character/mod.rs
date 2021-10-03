@@ -72,7 +72,7 @@ impl MainCharacter {
             // Handle extra external forces based on the character state
             self.movement_force = match &state {
                 CharacterState::Running => Vector2::new(10.0, 0.0),
-                CharacterState::Jumping => Vector2::new(10.0, -30.0),
+                CharacterState::Jumping => Vector2::new(10.0, -40.0),
                 CharacterState::Dashing => Vector2::new(30.0, -20.0),
             };
 

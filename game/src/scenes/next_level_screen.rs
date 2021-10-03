@@ -2,6 +2,7 @@ use std::ops::{Div, Sub};
 
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
@@ -18,7 +19,7 @@ use crate::{
 };
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, info, trace};
+use tracing::{debug, error, info, trace};
 
 #[derive(Debug)]
 pub struct NextLevelScreen {
@@ -40,8 +41,17 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running NextLevelScreen for the first time");
+
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default().details("accepting fate").assets(
+                Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+            ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
+
         Ok(())
     }
 
@@ -58,7 +68,6 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
         } else {
             Ok(ActionFlag::Continue)
         }
-
     }
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
@@ -112,8 +121,9 @@ impl ScreenSpaceRender for NextLevelScreen {
         );
 
         //Next Level
-        let hovering_next_button = Rectangle::new(80.0, screen_size.y as f32 / 2.0 + 50.0, 200.0, 40.0)
-            .check_collision_point_rec(mouse_position);
+        let hovering_next_button =
+            Rectangle::new(80.0, screen_size.y as f32 / 2.0 + 50.0, 200.0, 40.0)
+                .check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(80.0, screen_size.y / 2.0 + 50.0),
             ">> Next Level",
