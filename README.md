@@ -28,7 +28,7 @@ This game is developed by a team of 6 students from *Sheridan College* and *Tren
 - [**Luna Sicardi**](https://github.com/LuS404)
   - Software developer
   - UI design
-- **Emilia Frias**
+- [**Emilia Frias**](https://www.instagram.com/demilurii/)
   - Character art
   - Animations
   - Map assets
