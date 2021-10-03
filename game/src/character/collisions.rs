@@ -66,9 +66,9 @@ pub fn modify_player_based_on_forces(
     }
 
     // Check sideways collisions
-    if player.velocity.y == 0.0 && check_player_colliding_with_colliders(){
-        return Err(());
-    }
+    // if player.velocity.y == 0.0 && check_player_colliding_with_colliders(){
+    //     return Err(());
+    // }
 
     // Finally apply the velocity to the player
     player.position += player.velocity;

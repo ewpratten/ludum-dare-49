@@ -33,7 +33,9 @@ pub fn render_character_in_camera_space(
     );
     player.sprite_sheet.render(
         raylib,
-        player.position.sub(player.size.div(2.0)),
+        player
+            .position
+            .sub(Vector2::new(player.size.y, player.size.y).div(4.0)),
         Some(Vector2::new(player.size.y, player.size.y)),
         Some(frame_id),
     );
