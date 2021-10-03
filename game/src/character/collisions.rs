@@ -25,7 +25,13 @@ pub fn modify_player_based_on_forces(
     let predicted_player_position = player.position + player.velocity;
 
     // Calculate a bounding rect around the player both now, and one frame in the future
-    let player_rect = Rectangle::new(
+    let mut player_rect = Rectangle::new(
+        predicted_player_position.x - (player.size.x / 2.0),
+        predicted_player_position.y - (player.size.x / 2.0),
+        player.size.x,
+        player.size.y,
+    );
+    let predicted_player_rect = Rectangle::new(
         predicted_player_position.x - (player.size.x / 2.0),
         predicted_player_position.y - (player.size.x / 2.0),
         player.size.x,
@@ -39,6 +45,7 @@ pub fn modify_player_based_on_forces(
             translated_rect.y += level_height_offset;
             translated_rect.x += WORLD_LEVEL_X_OFFSET;
             translated_rect.check_collision_recs(&player_rect)
+                || translated_rect.check_collision_recs(&predicted_player_rect)
         })
     };
     let check_player_colliding_with_colliders_forwards = || {
@@ -46,9 +53,9 @@ pub fn modify_player_based_on_forces(
             let mut translated_rect = rect.clone();
             translated_rect.y += level_height_offset;
             translated_rect.x += WORLD_LEVEL_X_OFFSET;
-            translated_rect.check_collision_recs(&Rectangle{
+            translated_rect.check_collision_recs(&Rectangle {
                 x: player_rect.x + 1.0,
-                y: player_rect.y - 1.0 ,
+                y: player_rect.y - 1.0,
                 width: player_rect.width,
                 height: player_rect.height,
             })
@@ -56,9 +63,9 @@ pub fn modify_player_based_on_forces(
     };
 
     // If the player is colliding, only apply the x force
-    if (
-         check_player_colliding_with_colliders() || check_player_colliding_with_colliders_forwards())
-        && player.velocity.y != 0.0
+    if player.velocity.y != 0.0
+        && (check_player_colliding_with_colliders()
+            || check_player_colliding_with_colliders_forwards())
     {
         player.velocity.y = 0.0;
 
@@ -73,14 +80,25 @@ pub fn modify_player_based_on_forces(
             );
         }
     }
-
-    // Check sideways collisions
-    if player.velocity.y == 0.0 && check_player_colliding_with_colliders_forwards(){
-        return Err(());
-    }
-
     // Finally apply the velocity to the player
     player.position += player.velocity;
+
+    // Re-calculate the player rect
+    player_rect = Rectangle::new(
+        player.position.x - (player.size.x / 2.0),
+        player.position.y - (player.size.x / 2.0),
+        player.size.x,
+        player.size.y,
+    );
+
+    if colliders.iter().any(|rect| {
+        let mut translated_rect = rect.clone();
+        translated_rect.y += level_height_offset;
+        translated_rect.x += WORLD_LEVEL_X_OFFSET;
+        translated_rect.check_collision_recs(&player_rect)
+    }) {
+        return Err(());
+    }
 
     Ok(())
 }
