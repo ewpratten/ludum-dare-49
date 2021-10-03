@@ -27,7 +27,8 @@ pub struct MainMenuScreen {
     is_htp_pressed: bool,     //Is how to play button pressed
     is_options_pressed: bool, //Is options button pressed
     is_quit_pressed: bool,    //Is quit button pressed
-    level_times: Option<Vec<(usize, (usize, i64))>>
+    level_times: Option<Vec<(usize, (usize, i64))>>,
+    counter: i32,
 }
 
 impl MainMenuScreen {
@@ -38,7 +39,8 @@ impl MainMenuScreen {
             is_htp_pressed: false,
             is_options_pressed: false,
             is_quit_pressed: false,
-            level_times: None
+            level_times: None,
+            counter: 0,
         }
     }
 }
@@ -72,6 +74,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         trace!("execute() called on MainMenuScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
+        self.counter += 1;
 
         self.level_times = Some(context.player_progress.level_best_times.iter().map(|x| (*x.0, *x.1)).collect::<Vec<(_,_)>>().iter().map(|x| *x).enumerate().collect());
 
@@ -111,6 +114,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         self.is_htp_pressed = false;
         self.is_options_pressed = false;
         self.is_quit_pressed = false;
+        self.counter = 0;
         Ok(())
     }
 }
@@ -178,13 +182,29 @@ impl ScreenSpaceRender for MainMenuScreen {
         );
 
         // Render the title
-        raylib.draw_rgb_split_text(
-            Vector2::new(37.0, 80.0),
-            &format!("[{}]", config.name),
-            70,
-            true,
-            Color::WHITE,
-        );
+        let timer: i32 = get_random_value(50, 400);
+        if self.counter > timer {
+            raylib.draw_rgb_split_text(
+                Vector2::new(37.0, 80.0),
+                &format!("[{}]", config.name),
+                70,
+                true,
+                Color::WHITE,
+            );
+
+            if self.counter > timer + 20 {
+                self.counter = 0;
+            }
+
+        }else{
+            raylib.draw_rgb_split_text(
+                Vector2::new(37.0, 80.0),
+                &format!("[{}]", config.name),
+                70,
+                false,
+                Color::WHITE,
+            );
+        }
 
         // Start Game
         let hovering_start_game =
