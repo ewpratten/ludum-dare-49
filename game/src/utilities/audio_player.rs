@@ -1,6 +1,7 @@
 use raylib::audio::RaylibAudio;
 
 /// A thin wrapper around `raylib::core::audio::RaylibAudio` that keeps track of the volume of its audio channels.
+#[derive(Debug)]
 pub struct AudioPlayer {
     backend: RaylibAudio,
 
