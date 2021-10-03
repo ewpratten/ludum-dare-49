@@ -115,10 +115,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         if renderer.is_key_pressed(KeyboardKey::KEY_ESCAPE) {
             Ok(ActionFlag::SwitchState(Scenes::PauseScreen))
         } else if self.player_dead {
-
-            // TODO: (luna) make this switch to the death screen plz
-            // Ok(ActionFlag::SwitchState(Scenes::FsmErrorScreen))
-            Ok(ActionFlag::Continue)
+            Ok(ActionFlag::SwitchState(Scenes::DeathScreen))
         } else {
             Ok(ActionFlag::Continue)
         }
