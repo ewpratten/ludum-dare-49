@@ -113,7 +113,7 @@ impl ScreenSpaceRender for HowToPlayScreen {
 
         //Back to Menu
         let hovering_back_button = Rectangle::new(35.0, screen_size.y as f32 - 80.0, 200.0, 40.0)
-        .check_collision_point_rec(mouse_position);
+            .check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(25.0, screen_size.y - 50.0),
             "BACK TO MENU",
@@ -121,9 +121,6 @@ impl ScreenSpaceRender for HowToPlayScreen {
             hovering_back_button,
             Color::WHITE,
         );
-        if hovering_back_button && mouse_pressed {
-            self.is_btm_pressed = true;
-        }
-
+        self.is_btm_pressed = hovering_back_button && mouse_pressed;
     }
 }

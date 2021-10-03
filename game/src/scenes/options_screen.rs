@@ -5,27 +5,31 @@ use dirty_fsm::{Action, ActionFlag};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::GameContext, utilities::{
+use crate::{
+    context::GameContext,
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
 
 #[derive(Debug)]
 pub struct OptionsScreen {
-    is_btm_pressed: bool //Is back to menu button pressed
+    is_btm_pressed: bool, //Is back to menu button pressed
 }
 
 impl OptionsScreen {
     /// Construct a new `OptionsScreen`
     pub fn new() -> Self {
         Self {
-            is_btm_pressed: false
+            is_btm_pressed: false,
         }
     }
 }
@@ -52,8 +56,7 @@ impl Action<Scenes, ScreenError, GameContext> for OptionsScreen {
 
         if self.is_btm_pressed {
             Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
-        }
-        else{
+        } else {
             Ok(ActionFlag::Continue)
         }
     }
@@ -69,13 +72,19 @@ impl ScreenSpaceRender for OptionsScreen {
     fn render_screen_space(
         &mut self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
-        config: &GameConfig
+        config: &GameConfig,
     ) {
         let screen_size = raylib.get_screen_size();
 
         // Render the background
         raylib.clear_background(Color::BLACK);
-        raylib.draw_rectangle_lines(0, 0, screen_size.x as i32, screen_size.y as i32, config.colors.white);
+        raylib.draw_rectangle_lines(
+            0,
+            0,
+            screen_size.x as i32,
+            screen_size.y as i32,
+            config.colors.white,
+        );
 
         let screen_size = raylib.get_screen_size();
 
@@ -84,90 +93,19 @@ impl ScreenSpaceRender for OptionsScreen {
 
         let mouse_pressed: bool = raylib.is_mouse_button_pressed(MouseButton::MOUSE_LEFT_BUTTON);
 
-        raylib.draw_text(
-
-            "Options",
-            37,
-            80,
-            70,
-            Color::BLUE,
-        );
-
-        raylib.draw_text(
-
-            "Options",
-            43,
-            80,
-            70,
-            Color::RED,
-        );
-
-        raylib.draw_text(
-
-            "Options",
-            40,
-            80,
-            70,
-            Color::WHITE,
-        );
+        // Render the title
+        raylib.draw_rgb_split_text(Vector2::new(40.0, 80.0), "Options", 70, true, Color::WHITE);
 
         //Back to Menu
-        if Rectangle::new(35.0, screen_size.y as f32 - 80.0, 200.0, 40.0).check_collision_point_rec(mouse_position){
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                28,
-                screen_size.y as i32 - 50,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                22,
-                screen_size.y as i32 - 50,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                25,
-                screen_size.y as i32 - 50,
-                25,
-                Color::WHITE,
-            );
-
-            if mouse_pressed{
-                self.is_btm_pressed = true;
-
-            }
-        }
-        else {
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                26,
-                screen_size.y as i32 - 50,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                24,
-                screen_size.y as i32 - 50,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "BACK TO MENU",
-                25,
-                screen_size.y as i32 - 50,
-                25,
-                Color::WHITE,
-            );
-        }
+        let hovering_back = Rectangle::new(35.0, screen_size.y as f32 - 80.0, 200.0, 40.0)
+            .check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(25.0, screen_size.y - 50.0),
+            "Options",
+            25,
+            hovering_back,
+            Color::WHITE,
+        );
+        self.is_btm_pressed = mouse_pressed && hovering_back;
     }
 }
