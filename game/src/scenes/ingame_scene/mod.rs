@@ -136,6 +136,16 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Check if the player won
         let cur_level = self.levels.get(context.current_level).unwrap();
         if self.player.position.x > cur_level.zones.win.x {
+            // Save the current time
+            let elapsed = Utc::now() - self.level_switch_timestamp;
+            context
+                .flag_send
+                .send(Some(ControlFlag::MaybeUpdateHighScore(
+                    self.current_level_idx,
+                    elapsed,
+                )))
+                .unwrap();
+
             // Save the progress
             context
                 .flag_send
@@ -152,7 +162,6 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
                     .send(Some(ControlFlag::SwitchLevel(self.current_level_idx + 1)))
                     .unwrap();
 
-                // TODO: This is where the timer should reset and publish state
                 return Ok(ActionFlag::SwitchState(Scenes::NextLevelScreen));
             }
         }

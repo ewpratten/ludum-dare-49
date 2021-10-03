@@ -335,6 +335,12 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                         context::ControlFlag::SaveProgress => {
                             context.as_mut().player_progress.save();
                         }
+                        context::ControlFlag::MaybeUpdateHighScore(level, time) => {
+                            context
+                                .as_mut()
+                                .player_progress
+                                .maybe_write_new_time(level, &time);
+                        }
                     }
                 }
             }

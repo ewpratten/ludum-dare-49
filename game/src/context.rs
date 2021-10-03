@@ -1,6 +1,6 @@
 use std::{cell::RefCell, sync::mpsc::Sender};
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use discord_sdk::activity::ActivityBuilder;
 
 use crate::{progress::ProgressData, utilities::non_ref_raylib::HackedRaylibHandle, GameConfig};
@@ -10,7 +10,8 @@ pub enum ControlFlag {
     Quit,
     SwitchLevel(usize),
     UpdateLevelStart(DateTime<Utc>),
-    SaveProgress
+    SaveProgress,
+    MaybeUpdateHighScore(usize, Duration)
 }
 
 #[derive(Debug)]
