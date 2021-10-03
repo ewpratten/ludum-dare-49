@@ -81,6 +81,7 @@ use utilities::discord::DiscordConfig;
 use crate::{
     context::GameContext,
     discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
+    progress::ProgressData,
     scenes::{build_screen_state_machine, Scenes},
     utilities::{
         game_config::FinalShaderConfig,
@@ -108,6 +109,7 @@ mod scenes;
 mod utilities;
 pub use utilities::{datastore::StaticGameData, game_config::GameConfig};
 mod character;
+mod progress;
 
 /// The game entrypoint
 pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std::error::Error>> {
@@ -148,6 +150,9 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     // Build an MPSC for signaling the control thread
     let (send_control_signal, recv_control_signal) = std::sync::mpsc::channel();
 
+    // Load the savefile
+    let mut save_file = ProgressData::load_from_file();
+
     let mut context;
     let raylib_thread;
     {
@@ -172,6 +177,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             renderer: RefCell::new(rl.into()),
             config: game_config.clone(),
             current_level: 0,
+            player_progress: save_file,
             level_start_time: Utc::now(),
             discord_rpc_send: send_discord_rpc,
             flag_send: send_control_signal,
@@ -320,9 +326,20 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                         context::ControlFlag::Quit => break,
                         context::ControlFlag::SwitchLevel(level) => {
                             context.as_mut().current_level = level;
+                            context.as_mut().player_progress.save();
                         }
                         context::ControlFlag::UpdateLevelStart(time) => {
                             context.as_mut().level_start_time = time;
+                            context.as_mut().player_progress.save();
+                        }
+                        context::ControlFlag::SaveProgress => {
+                            context.as_mut().player_progress.save();
+                        }
+                        context::ControlFlag::MaybeUpdateHighScore(level, time) => {
+                            context
+                                .as_mut()
+                                .player_progress
+                                .maybe_write_new_time(level, &time);
                         }
                     }
                 }
@@ -333,5 +350,6 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             }
         }
     }
+    context.as_mut().player_progress.save();
     Ok(())
 }
