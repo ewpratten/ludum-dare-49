@@ -117,10 +117,7 @@ restart the level. If problems continue, simply get good.
                 Color::WHITE,
             );
 
-            if mouse_pressed{
-                self.is_retry_pressed = true;
-
-            }
+            self.is_retry_pressed = mouse_pressed
         }
         else {
             raylib.draw_text(

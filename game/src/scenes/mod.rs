@@ -3,7 +3,7 @@ use self::{
     fsm_error_screen::FsmErrorScreen,
     ingame_scene::{level::loader::load_all_levels, InGameScreen},
     main_menu_screen::MainMenuScreen, options_screen::OptionsScreen, how_to_play_screen::HowToPlayScreen,
-    death_screen::DeathScreen
+    death_screen::DeathScreen, win_screen::WinScreen
 };
 use crate::{
     context::GameContext,
@@ -22,6 +22,7 @@ pub mod how_to_play_screen;
 pub mod options_screen;
 pub mod pause_screen;
 pub mod death_screen;
+pub mod win_screen;
 
 /// Defines all scenes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
@@ -34,6 +35,7 @@ pub enum Scenes {
     OptionsScreen,
     PauseScreen,
     DeathScreen,
+    WinScreen,
 }
 
 /// Contains any possible errors thrown while rendering
@@ -71,6 +73,7 @@ pub fn build_screen_state_machine(
         InGameScreen::new(player_sprite_sheet, world_background, levels),
     )?;
     machine.add_action(Scenes::DeathScreen, DeathScreen::new())?;
+    machine.add_action(Scenes::WinScreen, WinScreen::new())?;
     Ok(machine)
 
 }
