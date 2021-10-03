@@ -94,7 +94,7 @@ pub fn modify_player_based_on_forces(
         player.size.y,
     );
 
-    if colliders.iter().any(|rect| {
+    if player.position.y > 50.0 || colliders.iter().any(|rect| {
         let mut translated_rect = rect.clone();
         translated_rect.y += level_height_offset;
         translated_rect.x += WORLD_LEVEL_X_OFFSET;
