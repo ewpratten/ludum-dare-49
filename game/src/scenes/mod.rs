@@ -2,7 +2,6 @@ use self::{
   pause_screen::PauseScreen,
     fsm_error_screen::FsmErrorScreen,
     ingame_scene::{level::loader::load_all_levels, InGameScreen},
-    loading_screen::LoadingScreen,
     main_menu_screen::MainMenuScreen, options_screen::OptionsScreen, how_to_play_screen::HowToPlayScreen,
     death_screen::DeathScreen
 };
@@ -18,7 +17,6 @@ use raylib::{texture::Texture2D, RaylibThread};
 
 pub mod fsm_error_screen;
 pub mod ingame_scene;
-pub mod loading_screen;
 pub mod main_menu_screen;
 pub mod how_to_play_screen;
 pub mod options_screen;
@@ -30,7 +28,6 @@ pub mod death_screen;
 pub enum Scenes {
     #[default]
     FsmErrorScreen,
-    LoadingScreen,
     MainMenuScreen,
     InGameScene,
     HowToPlayScreen,
@@ -65,10 +62,6 @@ pub fn build_screen_state_machine(
     // Set up the state machine
     let mut machine = StateMachine::new();
     machine.add_action(Scenes::FsmErrorScreen, FsmErrorScreen::new())?;
-    machine.add_action(
-        Scenes::LoadingScreen,
-        LoadingScreen::new(raylib_handle, thread)?,
-    )?;
     machine.add_action(Scenes::MainMenuScreen, MainMenuScreen::new())?;
     machine.add_action(Scenes::HowToPlayScreen, HowToPlayScreen::new())?;
     machine.add_action(Scenes::OptionsScreen, OptionsScreen::new())?;

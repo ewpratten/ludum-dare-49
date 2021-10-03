@@ -56,10 +56,10 @@ void main() {
   warpedUV.y += 0.5;
 
   // If the UV is outside the texture, return black
+  vec4 finalColorModifier = vec4(1.0);
   if (warpedUV.x < 0.0 || warpedUV.x > 1.0 || warpedUV.y < 0.0 ||
       warpedUV.y > 1.0) {
-    finalColor = vec4(0.0, 0.0, 0.0, 1.0);
-    return;
+    finalColorModifier = vec4(0.15);
   }
 
   // --- BEGIN BLOOM EFFECT ---
@@ -82,5 +82,5 @@ void main() {
   vec4 texWithBloom =
       ((textureSum / (bloomSamples * bloomSamples)) + texture(texture0, warpedUV)) * colDiffuse;
   finalColor = vec4(
-      mix(texWithBloom.rgb, vec3(0.0), scanlineFactor), 1.0);
+      mix(texWithBloom.rgb, vec3(0.0), scanlineFactor), 1.0) * finalColorModifier;
 }

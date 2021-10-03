@@ -6,10 +6,16 @@ use crate::{GameConfig, utilities::non_ref_raylib::HackedRaylibHandle};
 
 
 #[derive(Debug)]
+pub enum ControlFlag {
+    Quit
+}
+
+#[derive(Debug)]
 pub struct GameContext {
     pub renderer: RefCell<HackedRaylibHandle>,
     pub config: GameConfig,
-    pub discord_rpc_send: Sender<Option<ActivityBuilder>>
+    pub discord_rpc_send: Sender<Option<ActivityBuilder>>,
+    pub flag_send: Sender<Option<ControlFlag>>
 }
 
 // impl GameContext {

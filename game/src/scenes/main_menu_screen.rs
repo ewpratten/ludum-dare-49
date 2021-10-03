@@ -6,29 +6,23 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-    GameConfig,
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
 
 #[derive(Debug)]
 pub struct MainMenuScreen {
-
-    is_start_pressed: bool, //Is start button pressed
-    is_htp_pressed: bool, //Is how to play button pressed
+    is_start_pressed: bool,   //Is start button pressed
+    is_htp_pressed: bool,     //Is how to play button pressed
     is_options_pressed: bool, //Is options button pressed
-    is_quit_pressed: bool //Is quit button pressed
-
+    is_quit_pressed: bool,    //Is quit button pressed
 }
 
 impl MainMenuScreen {
@@ -38,7 +32,7 @@ impl MainMenuScreen {
             is_start_pressed: false,
             is_htp_pressed: false,
             is_options_pressed: false,
-            is_quit_pressed: false
+            is_quit_pressed: false,
         }
     }
 }
@@ -74,17 +68,14 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
 
         if self.is_start_pressed {
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
-        }
-        else if self.is_htp_pressed {
+        } else if self.is_htp_pressed {
             Ok(ActionFlag::SwitchState(Scenes::HowToPlayScreen))
-        }
-        else if self.is_options_pressed {
+        } else if self.is_options_pressed {
             Ok(ActionFlag::SwitchState(Scenes::OptionsScreen))
-        }
-        else if self.is_quit_pressed {
-            panic!();
-        }
-        else {
+        } else if self.is_quit_pressed {
+            context.flag_send.send(Some(ControlFlag::Quit)).unwrap();
+            Ok(ActionFlag::Continue)
+        } else {
             Ok(ActionFlag::Continue)
         }
     }
@@ -105,8 +96,17 @@ impl ScreenSpaceRender for MainMenuScreen {
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
         config: &GameConfig,
     ) {
+        let screen_size = raylib.get_screen_size();
+
         // Render the background
         raylib.clear_background(Color::BLACK);
+        raylib.draw_rectangle_lines(
+            0,
+            0,
+            screen_size.x as i32,
+            screen_size.y as i32,
+            config.colors.white,
+        );
 
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
@@ -150,269 +150,61 @@ impl ScreenSpaceRender for MainMenuScreen {
             Color::WHITE,
         );
 
-        raylib.draw_text(
-
+        // Render the title
+        raylib.draw_rgb_split_text(
+            Vector2::new(37.0, 80.0),
             &format!("[{}]", config.name),
-            37,
-            80,
             70,
-            Color::BLUE,
-        );
-
-        raylib.draw_text(
-
-            &format!("[{}]", config.name),
-            43,
-            80,
-            70,
-            Color::RED,
-        );
-
-        raylib.draw_text(
-
-            &format!("[{}]", config.name),
-            40,
-            80,
-            70,
+            true,
             Color::WHITE,
         );
 
         // Start Game
-        if Rectangle::new(80.0, 300.0, 170.0, 20.0).check_collision_point_rec(mouse_position) {
-            raylib.draw_text(
-
-                "START GAME",
-                83,
-                300,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "START GAME",
-                77,
-                300,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "START GAME",
-                80,
-                300,
-                25,
-                Color::WHITE,
-            );
-
-            if mouse_pressed{
-                self.is_start_pressed = true;
-            }
-        }
-        else{
-            raylib.draw_text(
-
-                "START GAME",
-                81,
-                300,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "START GAME",
-                79,
-                300,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "START GAME",
-                80,
-                300,
-                25,
-                Color::WHITE,
-            );
-        }
+        let hovering_start_game =
+            Rectangle::new(80.0, 300.0, 170.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 300.0),
+            "START GAME",
+            25,
+            hovering_start_game,
+            Color::WHITE,
+        );
+        self.is_start_pressed = mouse_pressed && hovering_start_game;
 
         // How to Play
-        if Rectangle::new(80.0, 350.0, 170.0, 20.0).check_collision_point_rec(mouse_position) {
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                83,
-                350,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                77,
-                350,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                80,
-                350,
-                25,
-                Color::WHITE,
-            );
-
-            if mouse_pressed{
-                self.is_htp_pressed = true;
-            }
-        }
-        else{
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                81,
-                350,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                79,
-                350,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "HOW TO PLAY",
-                80,
-                350,
-                25,
-                Color::WHITE,
-            );
-        }
+        let hovering_htp =
+            Rectangle::new(80.0, 350.0, 170.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 350.0),
+            "HOW TO PLAY",
+            25,
+            hovering_htp,
+            Color::WHITE,
+        );
+        self.is_htp_pressed = mouse_pressed && hovering_htp;
 
         // OPTIONS
-        if Rectangle::new(80.0, 400.0, 135.0, 20.0).check_collision_point_rec(mouse_position) {
-            raylib.draw_text(
-
-                "OPTIONS",
-                83,
-                400,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "OPTIONS",
-                77,
-                400,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "OPTIONS",
-                80,
-                400,
-                25,
-                Color::WHITE,
-            );
-
-            if mouse_pressed{
-                self.is_options_pressed = true;
-            }
-
-        }
-        else{
-            raylib.draw_text(
-
-                "OPTIONS",
-                81,
-                400,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "OPTIONS",
-                79,
-                400,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "OPTIONS",
-                80,
-                400,
-                25,
-                Color::WHITE,
-            );
-
-
-        }
+        let hovering_options =
+            Rectangle::new(80.0, 400.0, 135.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 400.0),
+            "OPTIONS",
+            25,
+            hovering_options,
+            Color::WHITE,
+        );
+        self.is_options_pressed = mouse_pressed && hovering_options;
 
         // QUIT
-        if Rectangle::new(80.0, 445.0, 65.0, 20.0).check_collision_point_rec(mouse_position) {
-            raylib.draw_text(
-
-                "QUIT",
-                83,
-                450,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "QUIT",
-                77,
-                450,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "QUIT",
-                80,
-                450,
-                25,
-                Color::WHITE,
-            );
-
-            if mouse_pressed{
-                self.is_quit_pressed = true;
-            }
-
-        }
-        else{
-            raylib.draw_text(
-
-                "QUIT",
-                81,
-                450,
-                25,
-                Color::RED,
-            );
-            raylib.draw_text(
-
-                "QUIT",
-                79,
-                450,
-                25,
-                Color::BLUE,
-            );
-            raylib.draw_text(
-
-                "QUIT",
-                80,
-                450,
-                25,
-                Color::WHITE,
-            );
-
-
-        }
+        let hovering_quit =
+            Rectangle::new(80.0, 445.0, 65.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 450.0),
+            "QUIT",
+            25,
+            hovering_quit,
+            Color::WHITE,
+        );
+        self.is_quit_pressed = mouse_pressed && hovering_quit;
     }
 }
