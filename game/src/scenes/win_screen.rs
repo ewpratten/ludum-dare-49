@@ -6,17 +6,13 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-    GameConfig,
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -69,6 +65,11 @@ impl Action<Scenes, ScreenError, GameContext> for WinScreen {
         self.counter += 1;
 
         if self.is_menu_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
+            context.flag_send.send(Some(ControlFlag::SwitchLevel(0))).unwrap();
             Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
         } else {
             Ok(ActionFlag::Continue)
@@ -79,6 +80,7 @@ impl Action<Scenes, ScreenError, GameContext> for WinScreen {
         debug!("Finished WinScreen");
         self.is_menu_pressed = false;
         self.counter = 0;
+
         Ok(())
     }
 }
