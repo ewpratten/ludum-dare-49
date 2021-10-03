@@ -12,7 +12,7 @@ use raylib::prelude::*;
 use tracing::trace;
 
 pub const WORLD_LEVEL_X_OFFSET: f32 = 200.0;
-pub const APPEAR_FADE_DISTANCE: f32 = 15.0;
+pub const APPEAR_FADE_DISTANCE: f32 = 16.0;
 
 impl WorldSpaceRender for InGameScreen {
     fn render_world_space(
@@ -44,7 +44,7 @@ impl WorldSpaceRender for InGameScreen {
             .iter()
             .map(|zone| {
                 Vector2::new(
-                    zone.x + WORLD_LEVEL_X_OFFSET,
+                    zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
                     zone.y - cur_level.platform_tex.height as f32,
                 )
                 .distance_to(self.player.position) as i32
