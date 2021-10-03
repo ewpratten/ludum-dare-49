@@ -87,15 +87,11 @@ impl ScreenSpaceRender for DeathScreen {
 
             "ERR: Corrupted Player Data Detected
 
-The program has detected lowering player integrity, and has halted as a safety precaution.
+The program has detected lowering player integrity,
+and has halted as a safety precaution.
 
-If this is the first time you've seen this error screen, restart the level. If this screen appears \nagain, follow these steps:
-
-Check to make sure any new powerups or abilities are properly installed.
-If this is a new run, ask the game dev for any game updates you might need.
-
-If problems continue, get better or stop being bad at the game.
-If you need to use safemode to actually complete the game, please just get good.
+If this is the first time you've seen this error screen,
+restart the level. If problems continue, simply get good.
 
 --------   Technical information   --------
 *** CALL STACK:
