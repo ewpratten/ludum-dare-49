@@ -68,7 +68,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         self.player.reset();
 
         // Set the player to running
-        let cur_level = self.levels.get(self.current_level_idx).unwrap();
+        let cur_level = self.levels.get(context.current_level).unwrap();
         let _ = self.player.update_player(
             Some(CharacterState::Running),
             &cur_level.colliders,
@@ -94,6 +94,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         puffin::profile_function!();
         trace!("execute() called on InGameScreen");
+        self.current_level_idx = context.current_level;
 
         // Grab exclusive access to the renderer
         let mut renderer = context.renderer.borrow_mut();

@@ -70,7 +70,7 @@
 )]
 #![clippy::msrv = "1.57.0"]
 
-use std::{cell::RefCell, sync::mpsc::TryRecvError};
+use std::{borrow::BorrowMut, cell::RefCell, sync::mpsc::TryRecvError};
 
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
@@ -147,7 +147,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     // Build an MPSC for signaling the control thread
     let (send_control_signal, recv_control_signal) = std::sync::mpsc::channel();
 
-    let context;
+    let mut context;
     let raylib_thread;
     {
         // Set up FFI access to raylib
@@ -170,6 +170,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         context = Box::new(GameContext {
             renderer: RefCell::new(rl.into()),
             config: game_config.clone(),
+            current_level: 0,
             discord_rpc_send: send_discord_rpc,
             flag_send: send_control_signal,
         });
@@ -315,6 +316,9 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                 if let Some(flag) = flag {
                     match flag {
                         context::ControlFlag::Quit => break,
+                        context::ControlFlag::SwitchLevel(level) => {
+                            context.as_mut().current_level = level;
+                        }
                     }
                 }
             }
