@@ -5,13 +5,17 @@ use dirty_fsm::{Action, ActionFlag};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::GameContext, utilities::{
+use crate::{
+    context::GameContext,
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, info, trace};
@@ -19,7 +23,7 @@ use tracing::{debug, info, trace};
 #[derive(Debug)]
 pub struct WinScreen {
     is_menu_pressed: bool, //Is menu button pressed
-    counter: i32
+    counter: i32,
 }
 
 impl WinScreen {
@@ -27,8 +31,7 @@ impl WinScreen {
     pub fn new() -> Self {
         Self {
             is_menu_pressed: false,
-            counter: 0
-
+            counter: 0,
         }
     }
 }
@@ -55,8 +58,7 @@ impl Action<Scenes, ScreenError, GameContext> for WinScreen {
 
         if self.is_menu_pressed {
             Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
-        }
-        else{
+        } else {
             Ok(ActionFlag::Continue)
         }
     }
@@ -73,29 +75,34 @@ impl ScreenSpaceRender for WinScreen {
     fn render_screen_space(
         &mut self,
         raylib: &mut crate::utilities::non_ref_raylib::HackedRaylibHandle,
-        config: &GameConfig
+        config: &GameConfig,
     ) {
+        let screen_size = raylib.get_screen_size();
 
         // Render the background
         raylib.clear_background(Color::BLACK);
-
-        let screen_size = raylib.get_screen_size();
+        raylib.draw_rectangle_lines(
+            0,
+            0,
+            screen_size.x as i32,
+            screen_size.y as i32,
+            config.colors.white,
+        );
 
         //Mouse Position
         let mouse_position: Vector2 = raylib.get_mouse_position();
 
         let mouse_pressed: bool = raylib.is_mouse_button_pressed(MouseButton::MOUSE_LEFT_BUTTON);
 
-         if self.counter > 100{
-            raylib.draw_rgb_split_text(
-                Vector2::new(100.0, screen_size.y as f32 / 2.0 - 120.0),
-                "congrats.",
-                40,
-                false,
-                Color::WHITE,
-            );
-        }
-        if self.counter > 200{
+        raylib.draw_rgb_split_text(
+            Vector2::new(100.0, screen_size.y as f32 / 2.0 - 120.0),
+            "congrats.",
+            40,
+            false,
+            Color::WHITE,
+        );
+
+        if self.counter > 100 {
             raylib.draw_rgb_split_text(
                 Vector2::new(100.0, screen_size.y as f32 / 2.0 - 60.0),
                 "you win.",
@@ -104,7 +111,7 @@ impl ScreenSpaceRender for WinScreen {
                 Color::WHITE,
             );
         }
-        if self.counter > 400{
+        if self.counter > 300 {
             raylib.draw_rgb_split_text(
                 Vector2::new(100.0, screen_size.y as f32 / 2.0),
                 "yay.",
@@ -115,8 +122,10 @@ impl ScreenSpaceRender for WinScreen {
         };
 
         //Return to Main Menu
-        if self.counter > 550{
-            if Rectangle::new(100.0, screen_size.y as f32 / 2.0 + 90.0, 270.0, 20.0).check_collision_point_rec(mouse_position){
+        if self.counter > 450 {
+            if Rectangle::new(100.0, screen_size.y as f32 / 2.0 + 90.0, 270.0, 20.0)
+                .check_collision_point_rec(mouse_position)
+            {
                 raylib.draw_rgb_split_text(
                     Vector2::new(100.0, screen_size.y as f32 / 2.0 + 100.0),
                     ">> RETURN TO MAIN MENU",
@@ -126,8 +135,7 @@ impl ScreenSpaceRender for WinScreen {
                 );
 
                 self.is_menu_pressed = mouse_pressed
-            }
-            else {
+            } else {
                 raylib.draw_rgb_split_text(
                     Vector2::new(100.0, screen_size.y as f32 / 2.0 + 100.0),
                     ">> RETURN TO MAIN MENU",
