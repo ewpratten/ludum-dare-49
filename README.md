@@ -28,11 +28,12 @@ This game is developed by a team of 6 students from *Sheridan College* and *Tren
 - [**Luna Sicardi**](https://github.com/LuS404)
   - Software developer
   - UI design
-- **Emilia Frias**
+- [**Emilia Frias**](https://www.instagram.com/demilurii/)
   - Character art
   - Animations
-  - Map assets
+  - Tilesets
 - [**Kori**](https://www.instagram.com/korigama/)
   - Concept art
+  - Tilesets
 
 A special thanks goes out to: [James Nickoli](https://github.com/rsninja722/) for insight on 2D collision detection, as well as [Ray](https://github.com/raysan5) and the members of the [raylib community](https://discord.gg/raylib) on discord for their support with the past two game jam projects.

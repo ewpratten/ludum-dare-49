@@ -76,12 +76,28 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         self.level_times = Some(context.player_progress.level_best_times.iter().map(|x| (*x.0, *x.1)).collect::<Vec<(_,_)>>().iter().map(|x| *x).enumerate().collect());
 
         if self.is_start_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else if self.is_htp_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::HowToPlayScreen))
         } else if self.is_options_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::OptionsScreen))
         } else if self.is_quit_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             context.flag_send.send(Some(ControlFlag::Quit)).unwrap();
             Ok(ActionFlag::Continue)
         } else {
@@ -294,5 +310,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             }
         }
         self.is_quit_pressed = mouse_pressed && hovering_quit;
+
+        // for
     }
 }

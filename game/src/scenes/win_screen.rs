@@ -65,6 +65,10 @@ impl Action<Scenes, ScreenError, GameContext> for WinScreen {
         self.counter += 1;
 
         if self.is_menu_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             context.flag_send.send(Some(ControlFlag::SwitchLevel(0))).unwrap();
             Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
         } else {
