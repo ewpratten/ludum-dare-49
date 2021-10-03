@@ -120,10 +120,7 @@ If you need to use safemode to actually complete the game, please just get good.
                 Color::WHITE,
             );
 
-            if mouse_pressed{
-                self.is_retry_pressed = true;
-
-            }
+            self.is_retry_pressed = mouse_pressed
         }
         else {
             raylib.draw_text(
