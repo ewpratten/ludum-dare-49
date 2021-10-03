@@ -17,6 +17,7 @@ pub struct Level {
     pub background_tex: WorldPaintTexture,
     pub platform_tex: Texture2D,
     pub appearing_platform_tex: Texture2D,
+    pub disappearing_platform_tex: Texture2D,
     pub colliders: Vec<Rectangle>,
     pub zones: LevelZones,
 }
