@@ -265,5 +265,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             );
         };
         self.is_quit_pressed = mouse_pressed && hovering_quit;
+
+        // for
     }
 }

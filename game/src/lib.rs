@@ -78,19 +78,10 @@ use raylib::prelude::*;
 use tracing::{error, info, warn};
 use utilities::discord::DiscordConfig;
 
-use crate::{
-    context::GameContext,
-    discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
-    progress::ProgressData,
-    scenes::{build_screen_state_machine, Scenes},
-    utilities::{
-        game_config::FinalShaderConfig,
-        shaders::{
+use crate::{context::GameContext, discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord}, progress::ProgressData, scenes::{build_screen_state_machine, Scenes}, utilities::{audio_player::AudioPlayer, datastore::load_music_from_internal_data, game_config::FinalShaderConfig, shaders::{
             shader::ShaderWrapper,
             util::{dynamic_screen_texture::DynScreenTexture, render_texture::render_to_texture},
-        },
-    },
-};
+        }}};
 
 #[macro_use]
 extern crate thiserror;
@@ -184,6 +175,16 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         });
     }
 
+    // Init the audio subsystem
+    let mut audio_system = AudioPlayer::new(RaylibAudio::init_audio_device());
+    audio_system.set_master_volume(0.4);
+
+    // Load the game's main song
+    let mut main_song = load_music_from_internal_data(&mut context.renderer.borrow_mut(), &raylib_thread, "audio/soundtrack.mp3").unwrap();
+
+    // Start the song
+    audio_system.play_music_stream(&mut main_song);
+
     // Get the main state machine
     info!("Setting up the scene management state machine");
     let mut game_state_machine =
@@ -222,6 +223,12 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
         // Profile the main game loop
         puffin::profile_scope!("main_loop");
         puffin::GlobalProfiler::lock().new_frame();
+
+        // Update the audio
+        audio_system.update_music_stream(&mut main_song);
+        if !audio_system.is_music_playing(&main_song) {
+            audio_system.play_music_stream(&mut main_song);
+        }
 
         // Update the GPU texture that we draw to. This handles screen resizing and some other stuff
         dynamic_texture
