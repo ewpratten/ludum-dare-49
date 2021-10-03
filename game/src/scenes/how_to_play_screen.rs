@@ -105,7 +105,7 @@ impl ScreenSpaceRender for HowToPlayScreen {
         // Render the instructions
         raylib.draw_rgb_split_text(
             Vector2::new(100.0, 300.0),
-            ">> SPACE to jump\n>> SHIFT to dash\n>> Don't die",
+            ">> SPACE to jump\n>> SHIFT to dash\n>> Marcelo made these maps\n>> Marcelo hates you",
             45,
             true,
             Color::WHITE,
