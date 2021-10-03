@@ -144,9 +144,9 @@ impl ScreenSpaceRender for LevelSelectScreen {
         // Render the levels
         for level in 0..self.visible_levels {
             let hovering_button =
-                Rectangle::new(100.0, 300.0, 180.0, 20.0).check_collision_point_rec(mouse_position);
+                Rectangle::new(100.0, 300.0 + (25.0 * level as f32), 180.0, 25.0 ).check_collision_point_rec(mouse_position);
             raylib.draw_rgb_split_text(
-                Vector2::new(100.0, 300.0),
+                Vector2::new(100.0, 300.0+ (25.0 * level as f32)),
                 &format!("LEVEL {}", level),
                 25,
                 hovering_button,
@@ -154,7 +154,7 @@ impl ScreenSpaceRender for LevelSelectScreen {
             );
             if hovering_button {
                 raylib.draw_rgb_split_text(
-                    Vector2::new(70.0, 300.0),
+                    Vector2::new(70.0, 300.0+ (25.0 * level as f32)),
                     ">>",
                     25,
                     hovering_button,
