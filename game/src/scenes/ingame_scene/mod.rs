@@ -133,6 +133,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Render the HUD
         self.render_screen_space(&mut renderer, &context.config);
 
+
         // Check if the player won
         let cur_level = self.levels.get(context.current_level).unwrap();
         if self.player.position.x > cur_level.zones.win.x {
