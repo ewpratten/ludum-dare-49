@@ -109,7 +109,7 @@ restart the level. If problems continue, simply get good.
 *** C  [libraylib.so+0x75c] END_DRAWING()
 *** RS [data_loss.so+0x48f] validate_player()
 *** ---------------------------------------
-*** PROGRAM_HALT (TIME: XX:XX, BEST: XX:XX)
+*** PROGRAM_HALT (TIMER: {}:{})
 *** ---------------------------------------",
             25,
             20,

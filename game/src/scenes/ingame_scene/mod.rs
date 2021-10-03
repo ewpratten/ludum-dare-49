@@ -69,7 +69,6 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Handle cleanup after death
         self.player_dead = false;
         self.player.reset();
-        self.level_switch_timestamp = Utc::now();
 
         // Set the player to running
         let cur_level = self.levels.get(context.current_level).unwrap();
@@ -140,6 +139,8 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
                     .flag_send
                     .send(Some(ControlFlag::SwitchLevel(self.current_level_idx + 1)))
                     .unwrap();
+
+                // TODO: This is where the timer should reset and publish state
                 return Ok(ActionFlag::SwitchState(Scenes::NextLevelScreen));
             }
         }
