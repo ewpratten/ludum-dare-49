@@ -83,7 +83,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
-            Ok(ActionFlag::SwitchState(Scenes::InGameScene))
+            Ok(ActionFlag::SwitchState(Scenes::LevelSelectScreen))
         } else if self.is_htp_pressed {
             context
                 .flag_send
@@ -270,6 +270,8 @@ impl ScreenSpaceRender for MainMenuScreen {
             );
         };
         self.is_options_pressed = mouse_pressed && hovering_options;
+
+
 
         // CREDITS
         let hovering_credits =
