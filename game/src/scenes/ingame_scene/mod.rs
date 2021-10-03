@@ -104,7 +104,12 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         if self.current_level_idx != context.current_level {
             self.current_level_idx = context.current_level;
             self.level_switch_timestamp = Utc::now();
-            context.flag_send.send(Some(ControlFlag::UpdateLevelStart(self.level_switch_timestamp))).unwrap();
+            context
+                .flag_send
+                .send(Some(ControlFlag::UpdateLevelStart(
+                    self.level_switch_timestamp,
+                )))
+                .unwrap();
         }
 
         // Grab exclusive access to the renderer
@@ -131,6 +136,12 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         // Check if the player won
         let cur_level = self.levels.get(context.current_level).unwrap();
         if self.player.position.x > cur_level.zones.win.x {
+            // Save the progress
+            context
+                .flag_send
+                .send(Some(ControlFlag::SaveProgress))
+                .unwrap();
+
             // If this is the last level, win the game
             if self.current_level_idx >= self.levels.len() - 1 {
                 return Ok(ActionFlag::SwitchState(Scenes::WinScreen));
