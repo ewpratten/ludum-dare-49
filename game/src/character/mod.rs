@@ -40,7 +40,7 @@ impl MainCharacter {
             movement_force: Vector2::zero(),
             velocity: Vector2::zero(),
             base_velocity: Vector2::new(0.0, GRAVITY_PPS),
-            size: Vector2::new(80.0, 100.0),
+            size: Vector2::new(60.0, 100.0),
             sprite_sheet: AnimatedSpriteSheet::new(
                 sprite_sheet,
                 Vector2::new(300.0, 300.0),
@@ -69,8 +69,8 @@ impl MainCharacter {
 
             // Handle extra external forces based on the character state
             self.movement_force = match state {
-                CharacterState::Running => Vector2::new(12.0, 0.0),
-                CharacterState::Jumping => Vector2::new(12.0, -30.0),
+                CharacterState::Running => Vector2::new(10.0, 0.0),
+                CharacterState::Jumping => Vector2::new(10.0, -30.0),
                 CharacterState::Dashing => Vector2::new(30.0, -20.0),
             };
         }
