@@ -1,18 +1,22 @@
-use std::ops::{Div, Sub};
+use std::{collections::hash_map::Iter, iter::Enumerate, ops::{Div, Sub}};
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
+use crate::{
+    context::{ControlFlag, GameContext},
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -23,6 +27,7 @@ pub struct MainMenuScreen {
     is_htp_pressed: bool,     //Is how to play button pressed
     is_options_pressed: bool, //Is options button pressed
     is_quit_pressed: bool,    //Is quit button pressed
+    level_times: Option<Vec<(usize, (usize, i64))>>
 }
 
 impl MainMenuScreen {
@@ -33,6 +38,7 @@ impl MainMenuScreen {
             is_htp_pressed: false,
             is_options_pressed: false,
             is_quit_pressed: false,
+            level_times: None
         }
     }
 }
@@ -66,13 +72,32 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         trace!("execute() called on MainMenuScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
+
+        self.level_times = Some(context.player_progress.level_best_times.iter().map(|x| (*x.0, *x.1)).collect::<Vec<(_,_)>>().iter().map(|x| *x).enumerate().collect());
+
         if self.is_start_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else if self.is_htp_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::HowToPlayScreen))
         } else if self.is_options_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::OptionsScreen))
         } else if self.is_quit_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             context.flag_send.send(Some(ControlFlag::Quit)).unwrap();
             Ok(ActionFlag::Continue)
         } else {
@@ -107,6 +132,8 @@ impl ScreenSpaceRender for MainMenuScreen {
             screen_size.y as i32,
             config.colors.white,
         );
+
+
 
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
@@ -170,7 +197,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             Color::WHITE,
         );
 
-        if hovering_start_game{
+        if hovering_start_game {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 300.0),
                 ">>",
@@ -192,7 +219,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_htp,
             Color::WHITE,
         );
-        if hovering_htp{
+        if hovering_htp {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 350.0),
                 ">>",
@@ -213,7 +240,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_options,
             Color::WHITE,
         );
-        if hovering_options{
+        if hovering_options {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 400.0),
                 ">>",
@@ -224,25 +251,66 @@ impl ScreenSpaceRender for MainMenuScreen {
         };
         self.is_options_pressed = mouse_pressed && hovering_options;
 
-        // QUIT
-        let hovering_quit =
-            Rectangle::new(80.0, 445.0, 65.0, 20.0).check_collision_point_rec(mouse_position);
+        // CREDITS
+        let hovering_credits =
+            Rectangle::new(80.0, 445.0, 135.0, 20.0).check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(80.0, 450.0),
+            "CREDITS",
+            25,
+            hovering_credits,
+            Color::WHITE,
+        );
+        if hovering_credits {
+            raylib.draw_rgb_split_text(Vector2::new(50.0, 450.0), ">>", 25, true, Color::WHITE);
+        };
+        if hovering_credits && mouse_pressed {
+            let _ = webbrowser::open("https://github.com/Ewpratten/ludum-dare-49#the-team");
+        }
+
+        // QUIT
+        let hovering_quit =
+            Rectangle::new(80.0, 495.0, 65.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 500.0),
             "QUIT",
             25,
             hovering_quit,
             Color::WHITE,
         );
-        if hovering_quit{
+        if hovering_quit {
             raylib.draw_rgb_split_text(
-                Vector2::new(50.0, 450.0),
+                Vector2::new(50.0, 500.0),
                 ">>",
                 25,
                 hovering_quit,
                 Color::WHITE,
             );
         };
+
+        // Best Times
+        raylib.draw_text(
+            "BEST TIMES",
+            screen_size.x as i32 - 200,
+            40,
+            25,
+            Color::DARKGRAY,
+        );
+
+        if let Some(times) = &self.level_times{
+            for (i, (level, time)) in times.iter() {
+                let time = Duration::seconds(*time);
+                raylib.draw_text(
+                    &format!("Lvl {}         {}:{}", level + 1, time.num_minutes(), time.num_seconds() % 60),
+                    screen_size.x as i32 - 200,
+                    100 + (25 * (*i as i32)),
+                    20,
+                    Color::DARKGRAY,
+                );
+            }
+        }
         self.is_quit_pressed = mouse_pressed && hovering_quit;
+
+        // for
     }
 }

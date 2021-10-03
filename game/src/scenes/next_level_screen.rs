@@ -1,22 +1,18 @@
 use std::ops::{Div, Sub};
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-    GameConfig,
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -24,6 +20,9 @@ use tracing::{debug, error, info, trace};
 #[derive(Debug)]
 pub struct NextLevelScreen {
     is_next_pressed: bool,
+    screen_load_time: DateTime<Utc>,
+    attempt_time: String,
+    best_time: String,
 }
 
 impl NextLevelScreen {
@@ -31,6 +30,9 @@ impl NextLevelScreen {
     pub fn new() -> Self {
         Self {
             is_next_pressed: false,
+            screen_load_time: Utc::now(),
+            attempt_time: String::new(),
+            best_time: String::new(),
         }
     }
 }
@@ -43,6 +45,7 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
 
     fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running NextLevelScreen for the first time");
+        self.screen_load_time = Utc::now();
 
         if let Err(e) = context.discord_rpc_send.send(Some(
             ActivityBuilder::default().details("accepting fate").assets(
@@ -63,7 +66,27 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
         trace!("execute() called on NextLevelScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
+        let attempt_elapsed = self.screen_load_time - context.level_start_time;
+        self.attempt_time = format!(
+            "{:02}:{:02}",
+            attempt_elapsed.num_minutes(),
+            attempt_elapsed.num_seconds() % 60
+        );
+        let best_time = context
+            .player_progress
+            .get_level_best_time(context.current_level)
+            .unwrap_or(attempt_elapsed);
+        self.best_time = format!(
+            "{:02}:{:02}",
+            best_time.num_minutes(),
+            best_time.num_seconds() % 60
+        );
+
         if self.is_next_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else {
             Ok(ActionFlag::Continue)
@@ -114,7 +137,14 @@ impl ScreenSpaceRender for NextLevelScreen {
         //Time
         raylib.draw_rgb_split_text(
             Vector2::new(80.0, screen_size.y / 2.0 - 40.0),
-            "YOUR TIME: ",
+            &format!("YOUR TIME: {}", self.attempt_time),
+            20,
+            false,
+            Color::WHITE,
+        );
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, screen_size.y / 2.0 - 20.0),
+            &format!("BEST TIME: {}", self.best_time),
             20,
             false,
             Color::WHITE,
