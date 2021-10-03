@@ -6,17 +6,13 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{
-    context::GameContext,
-    utilities::{
+use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    },
-    GameConfig,
-};
+    }};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -82,6 +78,10 @@ impl Action<Scenes, ScreenError, GameContext> for PauseScreen {
             && Rectangle::new(centered_x_paused, centered_y_paused, 435.0, 80.0)
                 .check_collision_point_rec(mouse_position)
         {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             return Ok(ActionFlag::SwitchState(Scenes::InGameScene));
         }
         //For Menu
@@ -89,6 +89,10 @@ impl Action<Scenes, ScreenError, GameContext> for PauseScreen {
             && Rectangle::new(centered_x_menu, centered_y_menu, 200.0, 50.0)
                 .check_collision_point_rec(mouse_position)
         {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             return Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen));
         }
 

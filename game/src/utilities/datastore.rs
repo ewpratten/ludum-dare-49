@@ -1,6 +1,10 @@
 use std::{io::Write, path::Path};
 
-use raylib::{texture::Texture2D, RaylibHandle, RaylibThread};
+use raylib::{
+    audio::{Music, Sound},
+    texture::Texture2D,
+    RaylibHandle, RaylibThread,
+};
 use tempfile::{tempdir, NamedTempFile};
 use tracing::debug;
 
@@ -57,6 +61,74 @@ pub fn load_texture_from_internal_data(
     let texture = raylib_handle
         .load_texture(thread, tmp_path.to_str().unwrap())
         .map_err(ResourceLoadError::Generic)?;
+
+    // Close the file
+    debug!(
+        "Dropping temporary directory: {}",
+        temp_dir.path().display()
+    );
+    temp_dir.close()?;
+
+    Ok(texture)
+}
+
+pub fn load_music_from_internal_data(
+    raylib_handle: &mut RaylibHandle,
+    thread: &RaylibThread,
+    path: &str,
+) -> Result<Music, ResourceLoadError> {
+    // Create a temp file path to work with
+    let temp_dir = tempdir()?;
+    debug!(
+        "Created temporary directory for passing embedded data to Raylib: {}",
+        temp_dir.path().display()
+    );
+    let tmp_path = temp_dir.path().join(Path::new(path).file_name().unwrap());
+
+    // Unpack the raw sound data to a real file on the local filesystem so raylib will read it correctly
+    std::fs::write(
+        &tmp_path,
+        &StaticGameData::get(path)
+            .ok_or(ResourceLoadError::AssetNotFound(path.to_string()))?
+            .data,
+    )?;
+
+    // Call through via FFI to re-load the file
+    let texture = Music::load_music_stream(thread, tmp_path.to_str().unwrap())
+        .map_err(ResourceLoadError::Generic)?;
+
+    // Close the file
+    debug!(
+        "Dropping temporary directory: {}",
+        temp_dir.path().display()
+    );
+    temp_dir.close()?;
+
+    Ok(texture)
+}
+
+pub fn load_sound_from_internal_data(
+    path: &str,
+) -> Result<Sound, ResourceLoadError> {
+    // Create a temp file path to work with
+    let temp_dir = tempdir()?;
+    debug!(
+        "Created temporary directory for passing embedded data to Raylib: {}",
+        temp_dir.path().display()
+    );
+    let tmp_path = temp_dir.path().join(Path::new(path).file_name().unwrap());
+
+    // Unpack the raw sound data to a real file on the local filesystem so raylib will read it correctly
+    std::fs::write(
+        &tmp_path,
+        &StaticGameData::get(path)
+            .ok_or(ResourceLoadError::AssetNotFound(path.to_string()))?
+            .data,
+    )?;
+
+    // Call through via FFI to re-load the file
+    let texture =
+        Sound::load_sound(tmp_path.to_str().unwrap()).map_err(ResourceLoadError::Generic)?;
 
     // Close the file
     debug!(

@@ -71,12 +71,28 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
         if self.is_start_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else if self.is_htp_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::HowToPlayScreen))
         } else if self.is_options_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::OptionsScreen))
         } else if self.is_quit_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             context.flag_send.send(Some(ControlFlag::Quit)).unwrap();
             Ok(ActionFlag::Continue)
         } else {
@@ -265,5 +281,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             );
         };
         self.is_quit_pressed = mouse_pressed && hovering_quit;
+
+        // for
     }
 }
