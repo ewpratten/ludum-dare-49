@@ -158,12 +158,12 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                 game_config.base_window_size.1,
             )
             .title(&format!("[{}]", game_config.name))
-            .vsync()
             .msaa_4x()
             .resizable()
             .replace_logger()
             .build();
         rl.set_exit_key(None);
+        rl.set_target_fps(60);
         raylib_thread = thread;
 
         // Build the game context
