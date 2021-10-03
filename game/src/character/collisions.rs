@@ -79,7 +79,10 @@ pub fn modify_player_based_on_forces(
                 level_height_offset,
             );
         }
+    }else if player.current_state == CharacterState::Running {
+        player.override_state(CharacterState::Jumping);
     }
+
     // Finally apply the velocity to the player
     player.position += player.velocity;
 
@@ -99,6 +102,7 @@ pub fn modify_player_based_on_forces(
     }) {
         return Err(());
     }
+
 
     Ok(())
 }
