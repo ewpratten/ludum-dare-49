@@ -4,7 +4,7 @@ use raylib::prelude::*;
 
 use crate::{
     character::{CharacterState, MainCharacter},
-    context::GameContext,
+    context::{ControlFlag, GameContext},
     utilities::{
         render_layer::{FrameUpdate, ScreenSpaceRender, WorldSpaceRender},
         world_paint_texture::WorldPaintTexture,
@@ -116,6 +116,22 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         // Render the HUD
         self.render_screen_space(&mut renderer, &context.config);
+
+        // Check if the player won
+        let cur_level = self.levels.get(context.current_level).unwrap();
+        if self.player.position.x > cur_level.zones.win.x {
+            // If this is the last level, win the game
+            if self.current_level_idx >= self.levels.len() - 1 {
+                return Ok(ActionFlag::SwitchState(Scenes::WinScreen));
+            } else {
+                // Otherwise, increment the level counter and switch to the next level
+                context
+                    .flag_send
+                    .send(Some(ControlFlag::SwitchLevel(self.current_level_idx + 1)))
+                    .unwrap();
+                return Ok(ActionFlag::SwitchState(Scenes::NextLevelScreen));
+            }
+        }
 
         if renderer.is_key_pressed(KeyboardKey::KEY_ESCAPE) {
             Ok(ActionFlag::SwitchState(Scenes::PauseScreen))
