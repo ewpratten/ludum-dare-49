@@ -1,6 +1,7 @@
 use std::ops::Mul;
 
 use raylib::math::{Rectangle, Vector2};
+use tracing::trace;
 
 use crate::scenes::ingame_scene::world::WORLD_LEVEL_X_OFFSET;
 
@@ -14,6 +15,8 @@ pub fn modify_player_based_on_forces(
     colliders: &Vec<Rectangle>,
     level_height_offset: f32,
 ) -> Result<(), ()> {
+    trace!("Player state: {:?}", player.current_state);
+
     // Modify the player's velocity by the forces
     player.movement_force += player.base_velocity;
     player.velocity = player.movement_force;
@@ -29,13 +32,7 @@ pub fn modify_player_based_on_forces(
         player.size.y,
     );
 
-    // Calculate a generic "floor" to always collide with
-    let floor_rect = Rectangle::new(f32::MIN, 0.0, f32::MAX, 1.0);
-
     // Check collision conditions
-    let check_player_colliding_with_floor = || floor_rect.check_collision_recs(&player_rect);
-    let check_player_colliding_with_floor_next_frame =
-        || player_rect.y + player_rect.height > floor_rect.y;
     let check_player_colliding_with_colliders = || {
         colliders.iter().any(|rect| {
             let mut translated_rect = rect.clone();
@@ -59,9 +56,8 @@ pub fn modify_player_based_on_forces(
     };
 
     // If the player is colliding, only apply the x force
-    if (check_player_colliding_with_floor()
-        || check_player_colliding_with_floor_next_frame()
-        || check_player_colliding_with_colliders())
+    if (
+         check_player_colliding_with_colliders() || check_player_colliding_with_colliders_forwards())
         && player.velocity.y != 0.0
     {
         player.velocity.y = 0.0;

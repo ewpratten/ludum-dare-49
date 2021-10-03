@@ -63,6 +63,10 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
     fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running InGameScreen for the first time");
 
+        // Handle cleanup after death
+        self.player_dead = false;
+        self.player.reset();
+
         // Set the player to running
         let cur_level = self.levels.get(self.current_level_idx).unwrap();
         let _ = self.player.update_player(

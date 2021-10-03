@@ -48,12 +48,19 @@
 		},
 		{
 			"type": "cargo",
-			"subcommand": "build",
+			"command": "run",
+			"args": [
+				"--features",
+				"collider_debug"
+			],
 			"problemMatcher": [
 				"$rustc"
 			],
 			"group": "build",
-			"label": "Rust: cargo build - ludum-dare-49"
+			"label": "Rust: Run Game - DEBUG COLLIDERS",
+			"env": {
+				"RUST_LOG": "debug"
+			}
 		}
 	]
 }

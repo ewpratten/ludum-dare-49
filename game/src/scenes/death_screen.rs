@@ -61,6 +61,7 @@ impl Action<Scenes, ScreenError, GameContext> for DeathScreen {
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished DeathScreen");
+        self.is_retry_pressed = false;
         Ok(())
     }
 }
