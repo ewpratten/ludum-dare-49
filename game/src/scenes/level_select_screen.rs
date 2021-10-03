@@ -6,29 +6,35 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
+use crate::{
+    context::{ControlFlag, GameContext},
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
 
 #[derive(Debug)]
 pub struct LevelSelectScreen {
-    is_level_one_pressed: bool, //Is back to menu button pressed
     is_btm_pressed: bool,
+    selected_level: Option<usize>,
+    visible_levels: usize,
 }
 
 impl LevelSelectScreen {
     /// Construct a new `LevelSelectScreen`
     pub fn new() -> Self {
         Self {
-            is_level_one_pressed: false,
             is_btm_pressed: false,
+            selected_level: None,
+            visible_levels: 0,
         }
     }
 }
@@ -52,6 +58,10 @@ impl Action<Scenes, ScreenError, GameContext> for LevelSelectScreen {
             error!("Failed to update discord: {}", e);
         }
 
+        // Calculate the number of levels to render
+        self.visible_levels =
+            (context.player_progress.level_best_times.len() + 1).min(context.total_levels);
+
         Ok(())
     }
 
@@ -63,14 +73,22 @@ impl Action<Scenes, ScreenError, GameContext> for LevelSelectScreen {
         trace!("execute() called on LevelSelectScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
 
-        if self.is_level_one_pressed {
+        if let Some(level) = self.selected_level {
+            // Play the sound
             context
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
+
+            // Switch the level
+            context
+                .flag_send
+                .send(Some(ControlFlag::SwitchLevel(level)))
+                .unwrap();
+
+            // Enter the game
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
-        }
-        else if self.is_btm_pressed {
+        } else if self.is_btm_pressed {
             context
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
@@ -83,7 +101,7 @@ impl Action<Scenes, ScreenError, GameContext> for LevelSelectScreen {
 
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished LevelSelectScreen");
-        self.is_level_one_pressed = false;
+        self.selected_level = None;
         self.is_btm_pressed = false;
         Ok(())
     }
@@ -124,101 +142,30 @@ impl ScreenSpaceRender for LevelSelectScreen {
         );
 
         // Render the levels
-        let hovering_level_one_button = Rectangle::new(100.0, 300.0, 180.0, 20.0)
-            .check_collision_point_rec(mouse_position);
-        raylib.draw_rgb_split_text(
-            Vector2::new(100.0, 300.0),
-            "LEVEL ONE",
-            25,
-            hovering_level_one_button,
-            Color::WHITE,
-        );
-        if hovering_level_one_button {
+        for level in 0..self.visible_levels {
+            let hovering_button =
+                Rectangle::new(100.0, 300.0, 180.0, 20.0).check_collision_point_rec(mouse_position);
             raylib.draw_rgb_split_text(
-                Vector2::new(70.0, 300.0),
-                ">>",
+                Vector2::new(100.0, 300.0),
+                &format!("LEVEL {}", level),
                 25,
-                hovering_level_one_button,
+                hovering_button,
                 Color::WHITE,
             );
-        };
-        self.is_level_one_pressed = mouse_pressed && hovering_level_one_button;
-
-        let hovering_level_two_button = Rectangle::new(100.0, 350.0, 180.0, 20.0)
-            .check_collision_point_rec(mouse_position);
-        raylib.draw_rgb_split_text(
-            Vector2::new(100.0, 350.0),
-            "LEVEL TWO",
-            25,
-            hovering_level_two_button,
-            Color::WHITE,
-        );
-        if hovering_level_two_button {
-            raylib.draw_rgb_split_text(
-                Vector2::new(70.0, 350.0),
-                ">>",
-                25,
-                hovering_level_two_button,
-                Color::WHITE,
-            );
-        };
-
-        let hovering_level_three_button = Rectangle::new(100.0, 400.0, 210.0, 20.0)
-            .check_collision_point_rec(mouse_position);
-        raylib.draw_rgb_split_text(
-            Vector2::new(100.0, 400.0),
-            "LEVEL THREE",
-            25,
-            hovering_level_three_button,
-            Color::WHITE,
-        );
-        if hovering_level_three_button {
-            raylib.draw_rgb_split_text(
-                Vector2::new(70.0, 400.0),
-                ">>",
-                25,
-                hovering_level_three_button,
-                Color::WHITE,
-            );
-        };
-
-        let hovering_level_four_button = Rectangle::new(100.0, 450.0, 200.0, 20.0)
-            .check_collision_point_rec(mouse_position);
-        raylib.draw_rgb_split_text(
-            Vector2::new(100.0, 450.0),
-            "LEVEL FOUR",
-            25,
-            hovering_level_four_button,
-            Color::WHITE,
-        );
-        if hovering_level_four_button {
-            raylib.draw_rgb_split_text(
-                Vector2::new(70.0, 450.0),
-                ">>",
-                25,
-                hovering_level_four_button,
-                Color::WHITE,
-            );
-        };
-
-        let hovering_level_five_button = Rectangle::new(100.0, 500.0, 200.0, 20.0)
-            .check_collision_point_rec(mouse_position);
-        raylib.draw_rgb_split_text(
-            Vector2::new(100.0, 500.0),
-            "LEVEL FIVE",
-            25,
-            hovering_level_five_button,
-            Color::WHITE,
-        );
-        if hovering_level_five_button {
-            raylib.draw_rgb_split_text(
-                Vector2::new(70.0, 500.0),
-                ">>",
-                25,
-                hovering_level_five_button,
-                Color::WHITE,
-            );
-        };
+            if hovering_button {
+                raylib.draw_rgb_split_text(
+                    Vector2::new(70.0, 300.0),
+                    ">>",
+                    25,
+                    hovering_button,
+                    Color::WHITE,
+                );
+            };
+            if mouse_pressed && hovering_button {
+                self.selected_level = Some(level);
+                break;
+            }
+        }
 
         //Back to Menu
         let hovering_back_button = Rectangle::new(35.0, screen_size.y as f32 - 80.0, 200.0, 40.0)

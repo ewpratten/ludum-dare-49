@@ -1,4 +1,4 @@
-use self::{death_screen::DeathScreen, fsm_error_screen::FsmErrorScreen, how_to_play_screen::HowToPlayScreen, ingame_scene::{level::loader::load_all_levels, InGameScreen}, level_select_screen::LevelSelectScreen, main_menu_screen::MainMenuScreen, next_level_screen::NextLevelScreen, options_screen::OptionsScreen, pause_screen::PauseScreen, win_screen::WinScreen};
+use self::{death_screen::DeathScreen, fsm_error_screen::FsmErrorScreen, how_to_play_screen::HowToPlayScreen, ingame_scene::{InGameScreen, level::{Level, loader::load_all_levels}}, level_select_screen::LevelSelectScreen, main_menu_screen::MainMenuScreen, next_level_screen::NextLevelScreen, options_screen::OptionsScreen, pause_screen::PauseScreen, win_screen::WinScreen};
 use crate::{context::GameContext, utilities::{datastore::{ResourceLoadError, load_music_from_internal_data, load_sound_from_internal_data, load_texture_from_internal_data}, non_ref_raylib::HackedRaylibHandle}};
 use dirty_fsm::StateMachine;
 use raylib::{texture::Texture2D, RaylibThread};
@@ -41,6 +41,7 @@ pub enum ScreenError {
 pub fn build_screen_state_machine(
     raylib_handle: &mut HackedRaylibHandle,
     thread: &RaylibThread,
+    levels: Vec<Level>
 ) -> Result<
     // StateMachine<Scenes, ScreenError, RefCell<(NonRefDrawHandle, Rc<RefCell<GameContext>>)>>,
     StateMachine<Scenes, ScreenError, GameContext>,
@@ -51,7 +52,6 @@ pub fn build_screen_state_machine(
         load_texture_from_internal_data(raylib_handle, thread, "character/player_run.png").unwrap();
     let world_background =
         load_texture_from_internal_data(raylib_handle, thread, "default-texture.png").unwrap();
-    let levels = load_all_levels(raylib_handle, thread).unwrap();
 
     // Set up the state machine
     let mut machine = StateMachine::new();
