@@ -117,7 +117,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         } else if self.player_dead {
 
             // TODO: (luna) make this switch to the death screen plz
-            Ok(ActionFlag::SwitchState(Scenes::FsmErrorScreen))
+            Ok(ActionFlag::SwitchState(Scenes::DeathScreen))
         } else {
             Ok(ActionFlag::Continue)
         }
