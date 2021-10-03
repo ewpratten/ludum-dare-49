@@ -82,7 +82,7 @@ use crate::{
     context::GameContext,
     discord_rpc::{maybe_set_discord_presence, try_connect_to_local_discord},
     progress::ProgressData,
-    scenes::{build_screen_state_machine, Scenes},
+    scenes::{build_screen_state_machine, ingame_scene::level::loader::load_all_levels, Scenes},
     utilities::{
         audio_player::AudioPlayer,
         datastore::{load_music_from_internal_data, load_sound_from_internal_data},
@@ -191,6 +191,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             config: game_config.clone(),
             audio: audio_system,
             sounds,
+            total_levels: 0,
             current_level: 0,
             player_progress: save_file,
             level_start_time: Utc::now(),
@@ -210,10 +211,14 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     // Start the song
     context.audio.play_music_stream(&mut main_song);
 
+    // Load all levels
+    let levels = load_all_levels(&mut context.renderer.borrow_mut(), &raylib_thread).unwrap();
+    context.total_levels = levels.len();
+
     // Get the main state machine
     info!("Setting up the scene management state machine");
     let mut game_state_machine =
-        build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread).unwrap();
+        build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread, levels).unwrap();
     game_state_machine
         .force_change_state(Scenes::MainMenuScreen)
         .unwrap();
@@ -374,9 +379,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                                 .maybe_write_new_time(level, &time);
                         }
                         context::ControlFlag::SoundTrigger(name) => {
-                            context.audio.play_sound(
-                                context.sounds.get(&name).unwrap(),
-                            );
+                            context.audio.play_sound(context.sounds.get(&name).unwrap());
                         }
                     }
                 }
