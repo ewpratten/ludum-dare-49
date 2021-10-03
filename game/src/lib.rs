@@ -144,6 +144,9 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     // Build an MPSC for the game to send rich presence data to discord
     let (send_discord_rpc, recv_discord_rpc) = std::sync::mpsc::channel();
 
+    // Build an MPSC for signaling the control thread
+    let (send_control_signal, recv_control_signal) = std::sync::mpsc::channel();
+
     let context;
     let raylib_thread;
     {
@@ -168,6 +171,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             renderer: RefCell::new(rl.into()),
             config: game_config.clone(),
             discord_rpc_send: send_discord_rpc,
+            flag_send: send_control_signal,
         });
     }
 
@@ -176,7 +180,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     let mut game_state_machine =
         build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread).unwrap();
     game_state_machine
-        .force_change_state(Scenes::LoadingScreen)
+        .force_change_state(Scenes::MainMenuScreen)
         .unwrap();
 
     // Create a dynamic texture to draw to for processing by shaders
@@ -302,6 +306,21 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             Err(TryRecvError::Disconnected) => {
                 error!("Discord RPC channel disconnected");
                 continue;
+            }
+        }
+
+        // Handle control flags
+        match recv_control_signal.try_recv() {
+            Ok(flag) => {
+                if let Some(flag) = flag {
+                    match flag {
+                        context::ControlFlag::Quit => break,
+                    }
+                }
+            }
+            Err(TryRecvError::Empty) => {}
+            Err(TryRecvError::Disconnected) => {
+                break;
             }
         }
     }

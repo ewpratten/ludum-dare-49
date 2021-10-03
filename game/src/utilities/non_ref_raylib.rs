@@ -1,12 +1,12 @@
 use std::ops::{Deref, DerefMut};
 
+use raylib::prelude::*;
 use raylib::{math::Vector2, prelude::RaylibDraw, RaylibHandle};
 
 #[derive(Debug)]
 pub struct HackedRaylibHandle(RaylibHandle);
 
 impl HackedRaylibHandle {
-
     /// Get the screen size as a vector
     #[inline]
     pub fn get_screen_size(&self) -> Vector2 {
@@ -14,6 +14,33 @@ impl HackedRaylibHandle {
             self.get_screen_width() as f32,
             self.get_screen_height() as f32,
         )
+    }
+
+    #[inline]
+    pub fn draw_rgb_split_text(
+        &mut self,
+        position: Vector2,
+        text: &str,
+        font_size: i32,
+        hovering: bool,
+        color: Color,
+    ) {
+        let extra_smudge = if hovering { 2 } else { 0 };
+        self.draw_text(
+            text,
+            position.x as i32 - 1 - extra_smudge,
+            position.y as i32,
+            font_size,
+            Color::BLUE,
+        );
+        self.draw_text(
+            text,
+            position.x as i32 + 1 + extra_smudge,
+            position.y as i32,
+            font_size,
+            Color::RED,
+        );
+        self.draw_text(text, position.x as i32, position.y as i32, font_size, color);
     }
 }
 
