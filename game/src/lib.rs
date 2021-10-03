@@ -72,6 +72,7 @@
 
 use std::{borrow::BorrowMut, cell::RefCell, sync::mpsc::TryRecvError};
 
+use chrono::Utc;
 use discord_sdk::activity::ActivityBuilder;
 use raylib::prelude::*;
 use tracing::{error, info, warn};
@@ -171,6 +172,7 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
             renderer: RefCell::new(rl.into()),
             config: game_config.clone(),
             current_level: 0,
+            level_start_time: Utc::now(),
             discord_rpc_send: send_discord_rpc,
             flag_send: send_control_signal,
         });
@@ -318,6 +320,9 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                         context::ControlFlag::Quit => break,
                         context::ControlFlag::SwitchLevel(level) => {
                             context.as_mut().current_level = level;
+                        }
+                        context::ControlFlag::UpdateLevelStart(time) => {
+                            context.as_mut().level_start_time = time;
                         }
                     }
                 }

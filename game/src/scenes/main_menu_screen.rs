@@ -6,13 +6,17 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
+use crate::{
+    context::{ControlFlag, GameContext},
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -170,7 +174,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             Color::WHITE,
         );
 
-        if hovering_start_game{
+        if hovering_start_game {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 300.0),
                 ">>",
@@ -192,7 +196,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_htp,
             Color::WHITE,
         );
-        if hovering_htp{
+        if hovering_htp {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 350.0),
                 ">>",
@@ -213,7 +217,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_options,
             Color::WHITE,
         );
-        if hovering_options{
+        if hovering_options {
             raylib.draw_rgb_split_text(
                 Vector2::new(50.0, 400.0),
                 ">>",
@@ -224,19 +228,36 @@ impl ScreenSpaceRender for MainMenuScreen {
         };
         self.is_options_pressed = mouse_pressed && hovering_options;
 
-        // QUIT
-        let hovering_quit =
-            Rectangle::new(80.0, 445.0, 65.0, 20.0).check_collision_point_rec(mouse_position);
+        // CREDITS
+        let hovering_credits =
+            Rectangle::new(80.0, 445.0, 135.0, 20.0).check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(80.0, 450.0),
+            "CREDITS",
+            25,
+            hovering_credits,
+            Color::WHITE,
+        );
+        if hovering_credits {
+            raylib.draw_rgb_split_text(Vector2::new(50.0, 450.0), ">>", 25, true, Color::WHITE);
+        };
+        if hovering_credits && mouse_pressed {
+            let _ = webbrowser::open("https://github.com/Ewpratten/ludum-dare-49#the-team");
+        }
+
+        // QUIT
+        let hovering_quit =
+            Rectangle::new(80.0, 495.0, 65.0, 20.0).check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, 500.0),
             "QUIT",
             25,
             hovering_quit,
             Color::WHITE,
         );
-        if hovering_quit{
+        if hovering_quit {
             raylib.draw_rgb_split_text(
-                Vector2::new(50.0, 450.0),
+                Vector2::new(50.0, 500.0),
                 ">>",
                 25,
                 hovering_quit,

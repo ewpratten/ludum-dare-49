@@ -104,6 +104,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         if self.current_level_idx != context.current_level {
             self.current_level_idx = context.current_level;
             self.level_switch_timestamp = Utc::now();
+            context.flag_send.send(Some(ControlFlag::UpdateLevelStart(self.level_switch_timestamp))).unwrap();
         }
 
         // Grab exclusive access to the renderer
