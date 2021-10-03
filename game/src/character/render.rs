@@ -35,7 +35,7 @@ pub fn render_character_in_camera_space(
         raylib,
         player
             .position
-            .sub(Vector2::new(player.size.y, player.size.y).div(4.0)),
+            .sub(Vector2::new(player.size.y, player.size.y).div(3.0)),
         Some(Vector2::new(player.size.y, player.size.y)),
         Some(frame_id),
     );
