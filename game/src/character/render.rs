@@ -22,7 +22,7 @@ pub fn render_character_in_camera_space(
 
     // Calculate the frame ID to render
     let frame_id = match player.current_state {
-        crate::character::CharacterState::Jumping => 4,
+        crate::character::CharacterState::Jumping => 6,
         _ => (frames_since_state_change % player.sprite_sheet.sprite_count as f32).floor() as usize,
     };
 
@@ -35,7 +35,7 @@ pub fn render_character_in_camera_space(
         raylib,
         player
             .position
-            .sub(Vector2::new(player.size.y, player.size.y).div(4.0)),
+            .sub(Vector2::new(player.size.y, player.size.y).div(3.0)),
         Some(Vector2::new(player.size.y, player.size.y)),
         Some(frame_id),
     );
