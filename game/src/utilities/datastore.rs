@@ -102,7 +102,7 @@ pub fn load_music_from_internal_data(
         "Dropping temporary directory: {}",
         temp_dir.path().display()
     );
-    temp_dir.close()?;
+    // temp_dir.close()?;
 
     Ok(texture)
 }
