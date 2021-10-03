@@ -72,7 +72,9 @@ pub fn load_all_levels(
                 )?,
                 zones,
             };
-            l.colliders.append(&mut l.zones.appear);
+            for a in &l.zones.appear {
+                l.colliders.push(a.clone());
+            }
             l
         });
     }
