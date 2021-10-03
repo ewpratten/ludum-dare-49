@@ -45,11 +45,13 @@ impl WorldSpaceRender for InGameScreen {
                 .appear
                 .iter()
                 .map(|zone| {
-                    Vector2::new(
-                        zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
-                        zone.y - cur_level.platform_tex.height as f32,
-                    )
-                    .distance_to(self.player.position) as i32
+                    // Vector2::new(
+                    //     zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
+                    //     zone.y - cur_level.platform_tex.height as f32,
+                    // )
+                    // .distance_to(self.player.position) as i32
+                    ((zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0)) - self.player.position.x)
+                        .abs() as i32
                 })
                 .min()
                 .unwrap_or(i32::MAX);
@@ -86,11 +88,13 @@ impl WorldSpaceRender for InGameScreen {
                 .disappear
                 .iter()
                 .map(|zone| {
-                    Vector2::new(
-                        zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
-                        zone.y - cur_level.platform_tex.height as f32,
-                    )
-                    .distance_to(self.player.position) as i32
+                    // Vector2::new(
+                    //     zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
+                    //     zone.y - cur_level.platform_tex.height as f32,
+                    // )
+                    // .distance_to(self.player.position) as i32
+                    ((zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0)) - self.player.position.x)
+                        .abs() as i32
                 })
                 .min()
                 .unwrap_or(i32::MAX);

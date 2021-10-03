@@ -2,6 +2,7 @@ use std::ops::{Div, Sub};
 
 use chrono::{DateTime, Utc};
 use dirty_fsm::{Action, ActionFlag};
+use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
@@ -18,7 +19,7 @@ use crate::{
 };
 
 use super::{Scenes, ScreenError};
-use tracing::{debug, info, trace};
+use tracing::{debug, error, info, trace};
 
 #[derive(Debug)]
 pub struct HowToPlayScreen {
@@ -40,8 +41,18 @@ impl Action<Scenes, ScreenError, GameContext> for HowToPlayScreen {
         Ok(())
     }
 
-    fn on_first_run(&mut self, _context: &GameContext) -> Result<(), ScreenError> {
+    fn on_first_run(&mut self, context: &GameContext) -> Result<(), ScreenError> {
         debug!("Running HowToPlayScreen for the first time");
+
+        if let Err(e) = context.discord_rpc_send.send(Some(
+            ActivityBuilder::default()
+                .details("learning how to play")
+                .assets(
+                    Assets::default().large("game-logo-small", Some(context.config.name.clone())),
+                ),
+        )) {
+            error!("Failed to update discord: {}", e);
+        }
 
         Ok(())
     }
