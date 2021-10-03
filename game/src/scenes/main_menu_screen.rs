@@ -1,6 +1,6 @@
-use std::ops::{Div, Sub};
+use std::{collections::hash_map::Iter, iter::Enumerate, ops::{Div, Sub}};
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use dirty_fsm::{Action, ActionFlag};
 use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
@@ -27,6 +27,7 @@ pub struct MainMenuScreen {
     is_htp_pressed: bool,     //Is how to play button pressed
     is_options_pressed: bool, //Is options button pressed
     is_quit_pressed: bool,    //Is quit button pressed
+    level_times: Option<Vec<(usize, (usize, i64))>>
 }
 
 impl MainMenuScreen {
@@ -37,6 +38,7 @@ impl MainMenuScreen {
             is_htp_pressed: false,
             is_options_pressed: false,
             is_quit_pressed: false,
+            level_times: None
         }
     }
 }
@@ -69,6 +71,9 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on MainMenuScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
+
+
+        self.level_times = Some(context.player_progress.level_best_times.iter().map(|x| (*x.0, *x.1)).collect::<Vec<(_,_)>>().iter().map(|x| *x).enumerate().collect());
 
         if self.is_start_pressed {
             context
@@ -127,6 +132,8 @@ impl ScreenSpaceRender for MainMenuScreen {
             screen_size.y as i32,
             config.colors.white,
         );
+
+
 
         // Calculate the logo position
         let screen_size = raylib.get_screen_size();
@@ -280,6 +287,28 @@ impl ScreenSpaceRender for MainMenuScreen {
                 Color::WHITE,
             );
         };
+
+        // Best Times
+        raylib.draw_text(
+            "BEST TIMES",
+            screen_size.x as i32 - 200,
+            40,
+            25,
+            Color::DARKGRAY,
+        );
+
+        if let Some(times) = &self.level_times{
+            for (i, (level, time)) in times.iter() {
+                let time = Duration::seconds(*time);
+                raylib.draw_text(
+                    &format!("Lvl {}         {}:{}", level + 1, time.num_minutes(), time.num_seconds() % 60),
+                    screen_size.x as i32 - 200,
+                    100 + (25 * (*i as i32)),
+                    20,
+                    Color::DARKGRAY,
+                );
+            }
+        }
         self.is_quit_pressed = mouse_pressed && hovering_quit;
 
         // for
