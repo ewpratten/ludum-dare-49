@@ -22,7 +22,9 @@ impl WorldSpaceRender for InGameScreen {
         let cur_level = self.levels.get(self.current_level_idx).unwrap();
 
         // Render the world background
-        cur_level.background_tex.render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
+        cur_level
+            .background_tex
+            .render(raylib, Vector2::new(0.0, -1080.0), &self.camera);
 
         // Render the platform layer
         raylib.draw_texture_v(
@@ -31,7 +33,8 @@ impl WorldSpaceRender for InGameScreen {
             Color::WHITE,
         );
 
-        if config.debug_view {
+        #[cfg(all(debug_assertions, feature = "collider_debug"))]
+        {
             for collider in &cur_level.colliders {
                 let mut translated_collider = collider.clone();
                 translated_collider.y += -cur_level.platform_tex.height as f32;
