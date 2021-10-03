@@ -34,3 +34,5 @@ This game is developed by a team of 6 students from *Sheridan College* and *Tren
   - Map assets
 - **Kori**
   - Concept art
+
+A special thanks goes out to: [James Nickoli](https://github.com/rsninja722/) for insight on 2D collision detection, as well as [Ray](https://github.com/raysan5) and the members of the [raylib community](https://discord.gg/raylib) on discord for their support with the past two game jam projects.
