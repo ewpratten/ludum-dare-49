@@ -20,6 +20,7 @@ use tracing::{debug, error, info, trace};
 #[derive(Debug)]
 pub struct OptionsScreen {
     is_btm_pressed: bool, //Is back to menu button pressed
+    counter: i32,
 }
 
 impl OptionsScreen {
@@ -27,6 +28,7 @@ impl OptionsScreen {
     pub fn new() -> Self {
         Self {
             is_btm_pressed: false,
+            counter: 0,
         }
     }
 }
@@ -63,6 +65,8 @@ impl Action<Scenes, ScreenError, GameContext> for OptionsScreen {
     ) -> Result<dirty_fsm::ActionFlag<Scenes>, ScreenError> {
         trace!("execute() called on OptionsScreen");
         self.render_screen_space(&mut context.renderer.borrow_mut(), &context.config);
+
+        self.counter += 1;
 
         if self.is_btm_pressed {
             context
@@ -108,7 +112,17 @@ impl ScreenSpaceRender for OptionsScreen {
         let mouse_pressed: bool = raylib.is_mouse_button_pressed(MouseButton::MOUSE_LEFT_BUTTON);
 
         // Render the title
-        raylib.draw_rgb_split_text(Vector2::new(40.0, 80.0), "Options", 70, true, Color::WHITE);
+        let timer: i32 = get_random_value(50, 400);
+        if self.counter > timer {
+            raylib.draw_rgb_split_text(Vector2::new(40.0, 80.0), "[Options]", 70, true, Color::WHITE);
+            if self.counter > timer + 20 {
+                self.counter = 0;
+            }
+        }
+        else{
+            raylib.draw_rgb_split_text(Vector2::new(40.0, 80.0), "[Options]", 70, false, Color::WHITE);
+
+        }
 
         // Render the text
         raylib.draw_rgb_split_text(
