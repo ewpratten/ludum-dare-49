@@ -41,14 +41,24 @@ pub fn render_character_in_camera_space(
     );
 
     // Possibly render a debug vector
-    if config.debug_view {
-        raylib.draw_line_v(
-            player.position.sub(player.size.div(2.0)),
-            player
-                .position
-                .sub(player.size.div(2.0))
-                .add(player.velocity.mul(10.0).add(Vector2::new(0.0, 100.0))),
-            Color::RED,
-        );
-    }
+    // if config.debug_view {
+    raylib.draw_line_v(
+        player.position.sub(player.size.div(2.0)),
+        player
+            .position
+            .sub(player.size.div(2.0))
+            .add(player.velocity.mul(10.0).add(Vector2::new(0.0, 100.0))),
+        Color::RED,
+    );
+    raylib.draw_rectangle_lines_ex(
+        Rectangle::new(
+            player.position.x - (player.size.x / 2.0),
+            player.position.y - (player.size.x / 2.0),
+            player.size.x,
+            player.size.y,
+        ),
+        2,
+        Color::RED,
+    );
+    // }
 }

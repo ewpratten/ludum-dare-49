@@ -44,6 +44,19 @@ pub fn modify_player_based_on_forces(
             translated_rect.check_collision_recs(&player_rect)
         })
     };
+    let check_player_colliding_with_colliders_forwards = || {
+        colliders.iter().any(|rect| {
+            let mut translated_rect = rect.clone();
+            translated_rect.y += level_height_offset;
+            translated_rect.x += WORLD_LEVEL_X_OFFSET;
+            translated_rect.check_collision_recs(&Rectangle{
+                x: player_rect.x + 1.0,
+                y: player_rect.y - 1.0 ,
+                width: player_rect.width,
+                height: player_rect.height,
+            })
+        })
+    };
 
     // If the player is colliding, only apply the x force
     if (check_player_colliding_with_floor()
@@ -66,9 +79,9 @@ pub fn modify_player_based_on_forces(
     }
 
     // Check sideways collisions
-    // if player.velocity.y == 0.0 && check_player_colliding_with_colliders(){
-    //     return Err(());
-    // }
+    if player.velocity.y == 0.0 && check_player_colliding_with_colliders_forwards(){
+        return Err(());
+    }
 
     // Finally apply the velocity to the player
     player.position += player.velocity;
