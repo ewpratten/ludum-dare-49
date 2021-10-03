@@ -40,3 +40,7 @@ puffin_viewer = "0.6"
 [build-dependencies]
 vergen = "5"
 anyhow = "1.0"
+
+[features]
+default = []
+collider_debug = []

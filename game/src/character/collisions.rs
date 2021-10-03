@@ -1,6 +1,7 @@
 use std::ops::Mul;
 
 use raylib::math::{Rectangle, Vector2};
+use tracing::trace;
 
 use crate::scenes::ingame_scene::world::WORLD_LEVEL_X_OFFSET;
 
@@ -14,6 +15,8 @@ pub fn modify_player_based_on_forces(
     colliders: &Vec<Rectangle>,
     level_height_offset: f32,
 ) -> Result<(), ()> {
+    trace!("Player state: {:?}", player.current_state);
+
     // Modify the player's velocity by the forces
     player.movement_force += player.base_velocity;
     player.velocity = player.movement_force;
@@ -22,26 +25,27 @@ pub fn modify_player_based_on_forces(
     let predicted_player_position = player.position + player.velocity;
 
     // Calculate a bounding rect around the player both now, and one frame in the future
-    let player_rect = Rectangle::new(
+    let mut player_rect = Rectangle::new(
+        predicted_player_position.x - (player.size.x / 2.0),
+        predicted_player_position.y - (player.size.x / 2.0),
+        player.size.x,
+        player.size.y,
+    );
+    let predicted_player_rect = Rectangle::new(
         predicted_player_position.x - (player.size.x / 2.0),
         predicted_player_position.y - (player.size.x / 2.0),
         player.size.x,
         player.size.y,
     );
 
-    // Calculate a generic "floor" to always collide with
-    let floor_rect = Rectangle::new(f32::MIN, 0.0, f32::MAX, 1.0);
-
     // Check collision conditions
-    let check_player_colliding_with_floor = || floor_rect.check_collision_recs(&player_rect);
-    let check_player_colliding_with_floor_next_frame =
-        || player_rect.y + player_rect.height > floor_rect.y;
     let check_player_colliding_with_colliders = || {
         colliders.iter().any(|rect| {
             let mut translated_rect = rect.clone();
             translated_rect.y += level_height_offset;
             translated_rect.x += WORLD_LEVEL_X_OFFSET;
             translated_rect.check_collision_recs(&player_rect)
+                || translated_rect.check_collision_recs(&predicted_player_rect)
         })
     };
     let check_player_colliding_with_colliders_forwards = || {
@@ -49,9 +53,9 @@ pub fn modify_player_based_on_forces(
             let mut translated_rect = rect.clone();
             translated_rect.y += level_height_offset;
             translated_rect.x += WORLD_LEVEL_X_OFFSET;
-            translated_rect.check_collision_recs(&Rectangle{
+            translated_rect.check_collision_recs(&Rectangle {
                 x: player_rect.x + 1.0,
-                y: player_rect.y - 1.0 ,
+                y: player_rect.y - 1.0,
                 width: player_rect.width,
                 height: player_rect.height,
             })
@@ -59,10 +63,9 @@ pub fn modify_player_based_on_forces(
     };
 
     // If the player is colliding, only apply the x force
-    if (check_player_colliding_with_floor()
-        || check_player_colliding_with_floor_next_frame()
-        || check_player_colliding_with_colliders())
-        && player.velocity.y != 0.0
+    if player.velocity.y != 0.0
+        && (check_player_colliding_with_colliders()
+            || check_player_colliding_with_colliders_forwards())
     {
         player.velocity.y = 0.0;
 
@@ -76,15 +79,30 @@ pub fn modify_player_based_on_forces(
                 level_height_offset,
             );
         }
-    }
-
-    // Check sideways collisions
-    if player.velocity.y == 0.0 && check_player_colliding_with_colliders_forwards(){
-        return Err(());
+    }else if player.current_state == CharacterState::Running {
+        player.override_state(CharacterState::Jumping);
     }
 
     // Finally apply the velocity to the player
     player.position += player.velocity;
+
+    // Re-calculate the player rect
+    player_rect = Rectangle::new(
+        player.position.x - (player.size.x / 2.0),
+        player.position.y - (player.size.x / 2.0),
+        player.size.x,
+        player.size.y,
+    );
+
+    if colliders.iter().any(|rect| {
+        let mut translated_rect = rect.clone();
+        translated_rect.y += level_height_offset;
+        translated_rect.x += WORLD_LEVEL_X_OFFSET;
+        translated_rect.check_collision_recs(&player_rect)
+    }) {
+        return Err(());
+    }
+
 
     Ok(())
 }

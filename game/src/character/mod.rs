@@ -53,6 +53,14 @@ impl MainCharacter {
         }
     }
 
+    pub fn override_state(&mut self, state: CharacterState) {
+        // Update the internal state
+        if state != self.current_state {
+            self.current_state = state.clone();
+            self.state_set_timestamp = Utc::now();
+        }
+    }
+
     #[must_use]
     pub fn update_player(
         &mut self,
@@ -61,18 +69,15 @@ impl MainCharacter {
         level_height_offset: f32,
     ) -> Result<(), ()> {
         if let Some(state) = state {
-            // Update the internal state
-            if state != self.current_state {
-                self.current_state = state.clone();
-                self.state_set_timestamp = Utc::now();
-            }
-
             // Handle extra external forces based on the character state
-            self.movement_force = match state {
+            self.movement_force = match &state {
                 CharacterState::Running => Vector2::new(10.0, 0.0),
                 CharacterState::Jumping => Vector2::new(10.0, -30.0),
                 CharacterState::Dashing => Vector2::new(30.0, -20.0),
             };
+
+            // Update the internal state
+            self.override_state(state);
         }
 
         // Update the player based on the new velocity
