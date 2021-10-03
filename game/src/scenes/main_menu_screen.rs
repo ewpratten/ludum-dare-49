@@ -169,6 +169,17 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_start_game,
             Color::WHITE,
         );
+
+        if hovering_start_game{
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, 300.0),
+                ">>",
+                25,
+                hovering_start_game,
+                Color::WHITE,
+            );
+        };
+
         self.is_start_pressed = mouse_pressed && hovering_start_game;
 
         // How to Play
@@ -181,6 +192,15 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_htp,
             Color::WHITE,
         );
+        if hovering_htp{
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, 350.0),
+                ">>",
+                25,
+                hovering_htp,
+                Color::WHITE,
+            );
+        };
         self.is_htp_pressed = mouse_pressed && hovering_htp;
 
         // OPTIONS
@@ -193,6 +213,15 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_options,
             Color::WHITE,
         );
+        if hovering_options{
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, 400.0),
+                ">>",
+                25,
+                hovering_options,
+                Color::WHITE,
+            );
+        };
         self.is_options_pressed = mouse_pressed && hovering_options;
 
         // QUIT
@@ -205,6 +234,15 @@ impl ScreenSpaceRender for MainMenuScreen {
             hovering_quit,
             Color::WHITE,
         );
+        if hovering_quit{
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, 450.0),
+                ">>",
+                25,
+                hovering_quit,
+                Color::WHITE,
+            );
+        };
         self.is_quit_pressed = mouse_pressed && hovering_quit;
     }
 }
