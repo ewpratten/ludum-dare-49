@@ -13,7 +13,7 @@ All development documentation has been moved to [`DEVELOPERS.md`](./DEVELOPERS.m
 
 ## The Team
 
-This game is developed by a team of 6 students from *Sheridan College* and *Trent University*.
+This game is developed by a team of 8 students from *Sheridan College* and *Trent University*.
 
 - [**Evan Pratten**](https://github.com/ewpratten)
   - Team lead
@@ -31,9 +31,13 @@ This game is developed by a team of 6 students from *Sheridan College* and *Tren
 - [**Emilia Frias**](https://www.instagram.com/demilurii/)
   - Character art
   - Animations
-  - Tilesets
 - [**Kori**](https://www.instagram.com/korigama/)
   - Concept art
   - Tilesets
+- **J.J.**
+  - *"Composer? I hardly know her!"*
+  - Playtesting
+- [**James Feener**](https://twitter.com/jamesmakesgame)
+  - Playtesting
 
 A special thanks goes out to: [James Nickoli](https://github.com/rsninja722/) for insight on 2D collision detection, as well as [Ray](https://github.com/raysan5) and the members of the [raylib community](https://discord.gg/raylib) on discord for their support with the past two game jam projects.
