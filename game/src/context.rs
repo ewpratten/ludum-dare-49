@@ -13,10 +13,11 @@ use crate::{
 #[derive(Debug)]
 pub enum ControlFlag {
     Quit,
-    SwitchLevel(usize),
-    UpdateLevelStart(DateTime<Utc>),
-    SaveProgress,
-    MaybeUpdateHighScore(usize, Duration),
+    BeginLevel(usize),
+    EndLevel,
+    // UpdateLevelStart(DateTime<Utc>),
+    // SaveProgress,
+    // MaybeUpdateHighScore(usize, Duration),
     SoundTrigger(String),
 }
 

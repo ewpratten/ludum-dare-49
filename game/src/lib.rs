@@ -218,7 +218,8 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
     // Get the main state machine
     info!("Setting up the scene management state machine");
     let mut game_state_machine =
-        build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread, levels).unwrap();
+        build_screen_state_machine(&mut context.renderer.borrow_mut(), &raylib_thread, levels)
+            .unwrap();
     game_state_machine
         .force_change_state(Scenes::MainMenuScreen)
         .unwrap();
@@ -361,22 +362,21 @@ pub async fn game_begin(game_config: &mut GameConfig) -> Result<(), Box<dyn std:
                 if let Some(flag) = flag {
                     match flag {
                         context::ControlFlag::Quit => break,
-                        context::ControlFlag::SwitchLevel(level) => {
+                        context::ControlFlag::BeginLevel(level) => {
                             context.as_mut().current_level = level;
-                            context.as_mut().player_progress.save();
+                            context.as_mut().level_start_time = Utc::now();
                         }
-                        context::ControlFlag::UpdateLevelStart(time) => {
-                            context.as_mut().level_start_time = time;
-                            context.as_mut().player_progress.save();
-                        }
-                        context::ControlFlag::SaveProgress => {
-                            context.as_mut().player_progress.save();
-                        }
-                        context::ControlFlag::MaybeUpdateHighScore(level, time) => {
-                            context
-                                .as_mut()
-                                .player_progress
-                                .maybe_write_new_time(level, &time);
+                        context::ControlFlag::EndLevel => {
+                            let now = Utc::now();
+                            let elapsed = now - context.as_mut().level_start_time;
+                            if elapsed.num_seconds().abs() > 1 {
+                                let current_level = context.as_mut().current_level;
+                                context
+                                    .as_mut()
+                                    .player_progress
+                                    .maybe_write_new_time(current_level, &elapsed);
+                                context.as_mut().player_progress.save();
+                            }
                         }
                         context::ControlFlag::SoundTrigger(name) => {
                             context.audio.play_sound(context.sounds.get(&name).unwrap());

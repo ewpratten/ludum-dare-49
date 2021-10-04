@@ -83,15 +83,15 @@ impl Action<Scenes, ScreenError, GameContext> for LevelSelectScreen {
             // Switch the level
             context
                 .flag_send
-                .send(Some(ControlFlag::SwitchLevel(level)))
+                .send(Some(ControlFlag::BeginLevel(level)))
                 .unwrap();
 
-            context
-                .flag_send
-                .send(Some(ControlFlag::UpdateLevelStart(
-                    Utc::now(),
-                )))
-                .unwrap();
+            // context
+            //     .flag_send
+            //     .send(Some(ControlFlag::UpdateLevelStart(
+            //         Utc::now(),
+            //     )))
+            //     .unwrap();
 
             // Enter the game
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
