@@ -45,13 +45,14 @@ impl WorldSpaceRender for InGameScreen {
                 .appear
                 .iter()
                 .map(|zone| {
-                    // Vector2::new(
-                    //     zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
-                    //     zone.y - cur_level.platform_tex.height as f32,
-                    // )
-                    // .distance_to(self.player.position) as i32
-                    ((zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0)) - self.player.position.x)
-                        .abs() as i32
+                    let left_edge_dist = (zone.x + WORLD_LEVEL_X_OFFSET) - self.player.position.x;
+                    let right_edge_dist =
+                        (zone.x + zone.width + WORLD_LEVEL_X_OFFSET) - self.player.position.x;
+                    if left_edge_dist < 0.0 && right_edge_dist > 0.0 {
+                        0
+                    } else {
+                        left_edge_dist.abs().min(right_edge_dist.abs()) as i32
+                    }
                 })
                 .min()
                 .unwrap_or(i32::MAX);
@@ -88,13 +89,14 @@ impl WorldSpaceRender for InGameScreen {
                 .disappear
                 .iter()
                 .map(|zone| {
-                    // Vector2::new(
-                    //     zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0),
-                    //     zone.y - cur_level.platform_tex.height as f32,
-                    // )
-                    // .distance_to(self.player.position) as i32
-                    ((zone.x + WORLD_LEVEL_X_OFFSET + (zone.width / 2.0)) - self.player.position.x)
-                        .abs() as i32
+                    let left_edge_dist = (zone.x + WORLD_LEVEL_X_OFFSET) - self.player.position.x;
+                    let right_edge_dist =
+                        (zone.x + zone.width + WORLD_LEVEL_X_OFFSET) - self.player.position.x;
+                    if left_edge_dist < 0.0 && right_edge_dist > 0.0 {
+                        0
+                    } else {
+                        left_edge_dist.abs().min(right_edge_dist.abs()) as i32
+                    }
                 })
                 .min()
                 .unwrap_or(i32::MAX);
