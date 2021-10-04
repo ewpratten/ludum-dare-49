@@ -8,6 +8,7 @@ pub mod loader;
 pub struct LevelZones {
     pub appear: Vec<Rectangle>,
     pub disappear: Vec<Rectangle>,
+    pub kill: Vec<Rectangle>,
     pub win: Rectangle,
 }
 
