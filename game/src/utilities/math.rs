@@ -92,3 +92,10 @@ mod test {
         assert!(relative_eq!(actual_value, expected_value, epsilon = 0.001));
     }
 }
+
+
+pub fn linear_interpolate(value: f32, input_range: Range<f32>, output_range: Range<f32>) -> f32 {
+    let normalized_value = (value - input_range.start) / (input_range.end - input_range.start);
+    let mapped_value = (normalized_value * (output_range.end - output_range.start)) + output_range.start;
+    mapped_value
+}
