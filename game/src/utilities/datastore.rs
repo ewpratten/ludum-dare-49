@@ -14,6 +14,10 @@ use tracing::debug;
 /// file so we only have to distribute a single file, instead of a game and its assets separately
 #[derive(rust_embed::RustEmbed)]
 #[folder = "assets"]
+#[exclude = "*.psd"]
+#[exclude = "*.xcf"]
+#[exclude = "*.tsx"]
+#[exclude = "*.tmx"]
 pub struct StaticGameData;
 
 #[derive(Debug, Error)]
