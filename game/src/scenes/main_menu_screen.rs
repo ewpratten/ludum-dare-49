@@ -83,7 +83,7 @@ impl Action<Scenes, ScreenError, GameContext> for MainMenuScreen {
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
-            Ok(ActionFlag::SwitchState(Scenes::InGameScene))
+            Ok(ActionFlag::SwitchState(Scenes::LevelSelectScreen))
         } else if self.is_htp_pressed {
             context
                 .flag_send
@@ -271,6 +271,8 @@ impl ScreenSpaceRender for MainMenuScreen {
         };
         self.is_options_pressed = mouse_pressed && hovering_options;
 
+
+
         // CREDITS
         let hovering_credits =
             Rectangle::new(80.0, 445.0, 135.0, 20.0).check_collision_point_rec(mouse_position);
@@ -321,7 +323,7 @@ impl ScreenSpaceRender for MainMenuScreen {
             for (i, (level, time)) in times.iter() {
                 let time = Duration::seconds(*time);
                 raylib.draw_text(
-                    &format!("Lvl {}         {}:{}", level + 1, time.num_minutes(), time.num_seconds() % 60),
+                    &format!("Lvl {}         {}:{}", level, time.num_minutes(), time.num_seconds() % 60),
                     screen_size.x as i32 - 200,
                     100 + (25 * (*i as i32)),
                     20,
@@ -331,6 +333,5 @@ impl ScreenSpaceRender for MainMenuScreen {
         }
         self.is_quit_pressed = mouse_pressed && hovering_quit;
 
-        // for
     }
 }

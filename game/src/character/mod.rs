@@ -66,6 +66,7 @@ impl MainCharacter {
         &mut self,
         state: Option<CharacterState>,
         colliders: &Vec<Rectangle>,
+        killers: &Vec<Rectangle>,
         level_height_offset: f32,
     ) -> Result<(), ()> {
         if let Some(state) = state {
@@ -81,7 +82,7 @@ impl MainCharacter {
         }
 
         // Update the player based on the new velocity
-        modify_player_based_on_forces(self, colliders, level_height_offset)
+        modify_player_based_on_forces(self, colliders, killers, level_height_offset)
     }
 
     pub fn reset(&mut self) {

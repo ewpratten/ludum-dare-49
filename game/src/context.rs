@@ -4,16 +4,21 @@ use chrono::{DateTime, Duration, Utc};
 use discord_sdk::activity::ActivityBuilder;
 use raylib::audio::Sound;
 
-use crate::{GameConfig, progress::ProgressData, utilities::{audio_player::AudioPlayer, non_ref_raylib::HackedRaylibHandle}};
+use crate::{
+    progress::ProgressData,
+    utilities::{audio_player::AudioPlayer, non_ref_raylib::HackedRaylibHandle},
+    GameConfig,
+};
 
 #[derive(Debug)]
 pub enum ControlFlag {
     Quit,
-    SwitchLevel(usize),
-    UpdateLevelStart(DateTime<Utc>),
-    SaveProgress,
-    MaybeUpdateHighScore(usize, Duration),
-    SoundTrigger(String)
+    BeginLevel(usize),
+    EndLevel,
+    // UpdateLevelStart(DateTime<Utc>),
+    // SaveProgress,
+    // MaybeUpdateHighScore(usize, Duration),
+    SoundTrigger(String),
 }
 
 #[derive(Debug)]
@@ -24,6 +29,7 @@ pub struct GameContext {
     pub config: GameConfig,
     pub player_progress: ProgressData,
     pub current_level: usize,
+    pub total_levels: usize,
     pub level_start_time: DateTime<Utc>,
     pub discord_rpc_send: Sender<Option<ActivityBuilder>>,
     pub flag_send: Sender<Option<ControlFlag>>,

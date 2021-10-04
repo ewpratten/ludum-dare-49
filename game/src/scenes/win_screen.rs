@@ -69,7 +69,7 @@ impl Action<Scenes, ScreenError, GameContext> for WinScreen {
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
-            context.flag_send.send(Some(ControlFlag::SwitchLevel(0))).unwrap();
+            context.flag_send.send(Some(ControlFlag::EndLevel)).unwrap();
             Ok(ActionFlag::SwitchState(Scenes::MainMenuScreen))
         } else {
             Ok(ActionFlag::Continue)
