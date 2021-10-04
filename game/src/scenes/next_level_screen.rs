@@ -6,13 +6,17 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
+use crate::{
+    context::{ControlFlag, GameContext},
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -87,6 +91,14 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
+
+            // Start the next level
+            let current_level = context.current_level;
+            context
+                .flag_send
+                .send(Some(ControlFlag::BeginLevel(current_level + 1)))
+                .unwrap();
+
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         } else {
             Ok(ActionFlag::Continue)

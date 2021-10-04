@@ -104,13 +104,13 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         if self.current_level_idx != context.current_level {
             self.current_level_idx = context.current_level;
-            self.level_switch_timestamp = Utc::now();
-            context
-                .flag_send
-                .send(Some(ControlFlag::UpdateLevelStart(
-                    self.level_switch_timestamp,
-                )))
-                .unwrap();
+            // self.level_switch_timestamp = Utc::now();
+            // context
+            //     .flag_send
+            //     .send(Some(ControlFlag::UpdateLevelStart(
+            //         self.level_switch_timestamp,
+            //     )))
+            //     .unwrap();
         }
 
         // Grab exclusive access to the renderer
@@ -138,30 +138,29 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         let cur_level = self.levels.get(context.current_level).unwrap();
         if self.player.position.x > cur_level.zones.win.x {
             // Save the current time
-            let elapsed = Utc::now() - self.level_switch_timestamp;
-            context
-                .flag_send
-                .send(Some(ControlFlag::MaybeUpdateHighScore(
-                    self.current_level_idx,
-                    elapsed,
-                )))
-                .unwrap();
+            // let elapsed = Utc::now() - self.level_switch_timestamp;
+            // context
+            //     .flag_send
+            //     .send(Some(ControlFlag::MaybeUpdateHighScore(
+            //         self.current_level_idx,
+            //         elapsed,
+            //     )))
+            //     .unwrap();
 
             // Save the progress
-            context
-                .flag_send
-                .send(Some(ControlFlag::SaveProgress))
-                .unwrap();
+
+            // End the level
+            context.flag_send.send(Some(ControlFlag::EndLevel)).unwrap();
 
             // If this is the last level, win the game
             if self.current_level_idx >= self.levels.len() - 1 {
                 return Ok(ActionFlag::SwitchState(Scenes::WinScreen));
             } else {
                 // Otherwise, increment the level counter and switch to the next level
-                context
-                    .flag_send
-                    .send(Some(ControlFlag::SwitchLevel(self.current_level_idx + 1)))
-                    .unwrap();
+                // context
+                //     .flag_send
+                //     .send(Some(ControlFlag::SwitchLevel(self.current_level_idx + 1)))
+                //     .unwrap();
 
                 return Ok(ActionFlag::SwitchState(Scenes::NextLevelScreen));
             }
