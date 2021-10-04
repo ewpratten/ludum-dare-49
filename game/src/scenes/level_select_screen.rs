@@ -52,7 +52,7 @@ impl Action<Scenes, ScreenError, GameContext> for LevelSelectScreen {
 
         if let Err(e) = context.discord_rpc_send.send(Some(
             ActivityBuilder::default()
-                .details("learning how to play")
+                .details("choosing fate")
                 .assets(
                     Assets::default().large("game-logo-small", Some(context.config.name.clone())),
                 ),
