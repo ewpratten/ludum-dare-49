@@ -104,6 +104,10 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
         }
         else if self.is_level_select_pressed {
+            context
+                .flag_send
+                .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
+                .unwrap();
             Ok(ActionFlag::SwitchState(Scenes::LevelSelectScreen))
         }else {
             Ok(ActionFlag::Continue)
