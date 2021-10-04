@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
         "clippy",
+        "platformer",
         "raylib",
         "renderable",
+        "scroller",
         "vergen",
         "vsprintf"
     ]

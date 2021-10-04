@@ -1,15 +1,15 @@
-# [data::loss]
+
+![](./game/assets/logos/game-banner.png)
+
 [![Build](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/build.yml/badge.svg)](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/build.yml)
 [![Clippy check](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/clippy.yml/badge.svg)](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/clippy.yml)
 [![Ludum Dare 49](https://img.shields.io/badge/Ludum%20Dare-49-orange)](https://ldjam.com/events/ludum-dare/49/$261521)
 [![Rust 1.57 nightly](https://img.shields.io/badge/Rust-1.57%20nightly-orange)](https://www.rust-lang.org/)
 [![Made with Raylib](https://img.shields.io/badge/Made%20With-raylib-blue)](https://www.raylib.com/)
 
+**[data::loss]** is a fast-paced side-scroller platforming game where you navigate a world full of graphical inconsistencies that have a habit of causing physical consequences.
 
-
-## Documentation
-
-All development documentation has been moved to [`DEVELOPERS.md`](./DEVELOPERS.md).
+This game was written purely in [Rust](https://www.rust-lang.org/), and interfaces with bindings to the [`raylib`](https://raylib.com) graphics library. For half the team, this has been their first experience with Rust. The other half have extensive experience in the language.
 
 ## The Team
 
