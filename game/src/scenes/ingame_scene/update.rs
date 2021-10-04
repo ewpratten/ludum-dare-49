@@ -35,12 +35,14 @@ impl FrameUpdate for InGameScreen {
             self.player.update_player(
                 Some(CharacterState::Jumping),
                 &cur_level.colliders,
+                &cur_level.zones.kill,
                 -cur_level.platform_tex.height as f32,
             )
         } else if is_dash {
             self.player.update_player(
                 Some(CharacterState::Dashing),
                 &cur_level.colliders,
+                &cur_level.zones.kill,
                 -cur_level.platform_tex.height as f32,
             )
         } else {
@@ -50,12 +52,14 @@ impl FrameUpdate for InGameScreen {
                 self.player.update_player(
                     Some(CharacterState::Running),
                     &cur_level.colliders,
+                    &cur_level.zones.kill,
                     -cur_level.platform_tex.height as f32,
                 )
             } else {
                 self.player.update_player(
                     None,
                     &cur_level.colliders,
+                    &cur_level.zones.kill,
                     -cur_level.platform_tex.height as f32,
                 )
             }

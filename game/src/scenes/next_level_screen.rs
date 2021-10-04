@@ -6,13 +6,17 @@ use discord_sdk::activity::{ActivityBuilder, Assets};
 use pkg_version::pkg_version_major;
 use raylib::prelude::*;
 
-use crate::{GameConfig, context::{ControlFlag, GameContext}, utilities::{
+use crate::{
+    context::{ControlFlag, GameContext},
+    utilities::{
         datastore::{load_texture_from_internal_data, ResourceLoadError},
         game_version::get_version_string,
         math::interpolate_exp,
         non_ref_raylib::HackedRaylibHandle,
         render_layer::ScreenSpaceRender,
-    }};
+    },
+    GameConfig,
+};
 
 use super::{Scenes, ScreenError};
 use tracing::{debug, error, info, trace};
@@ -20,6 +24,7 @@ use tracing::{debug, error, info, trace};
 #[derive(Debug)]
 pub struct NextLevelScreen {
     is_next_pressed: bool,
+    is_level_select_pressed: bool,
     screen_load_time: DateTime<Utc>,
     attempt_time: String,
     best_time: String,
@@ -30,6 +35,7 @@ impl NextLevelScreen {
     pub fn new() -> Self {
         Self {
             is_next_pressed: false,
+            is_level_select_pressed: false,
             screen_load_time: Utc::now(),
             attempt_time: String::new(),
             best_time: String::new(),
@@ -87,8 +93,19 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
                 .unwrap();
+
+            // Start the next level
+            let current_level = context.current_level;
+            context
+                .flag_send
+                .send(Some(ControlFlag::BeginLevel(current_level + 1)))
+                .unwrap();
+
             Ok(ActionFlag::SwitchState(Scenes::InGameScene))
-        } else {
+        }
+        else if self.is_level_select_pressed {
+            Ok(ActionFlag::SwitchState(Scenes::LevelSelectScreen))
+        }else {
             Ok(ActionFlag::Continue)
         }
     }
@@ -96,6 +113,7 @@ impl Action<Scenes, ScreenError, GameContext> for NextLevelScreen {
     fn on_finish(&mut self, _interrupted: bool) -> Result<(), ScreenError> {
         debug!("Finished NextLevelScreen");
         self.is_next_pressed = false;
+        self.is_level_select_pressed = false;
         Ok(())
     }
 }
@@ -156,11 +174,42 @@ impl ScreenSpaceRender for NextLevelScreen {
                 .check_collision_point_rec(mouse_position);
         raylib.draw_rgb_split_text(
             Vector2::new(80.0, screen_size.y / 2.0 + 50.0),
-            ">> Next Level",
+            "Next Level",
             25,
             hovering_next_button,
             Color::WHITE,
         );
+        if hovering_next_button {
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, screen_size.y as f32 / 2.0 + 50.0),
+                ">>",
+                25,
+                hovering_next_button,
+                Color::WHITE,
+            );
+        };
         self.is_next_pressed = hovering_next_button && mouse_pressed;
+
+        //Next Level
+        let hovering_level_select_button =
+            Rectangle::new(80.0, screen_size.y as f32 / 2.0 + 90.0, 300.0, 20.0)
+                .check_collision_point_rec(mouse_position);
+        raylib.draw_rgb_split_text(
+            Vector2::new(80.0, screen_size.y / 2.0 + 100.0),
+            "Back To Level Select",
+            25,
+            hovering_level_select_button,
+            Color::WHITE,
+        );
+        if hovering_level_select_button {
+            raylib.draw_rgb_split_text(
+                Vector2::new(50.0, screen_size.y as f32 / 2.0 + 100.0),
+                ">>",
+                25,
+                hovering_level_select_button,
+                Color::WHITE,
+            );
+        };
+        self.is_level_select_pressed = hovering_level_select_button && mouse_pressed;
     }
 }
