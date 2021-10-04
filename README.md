@@ -1,4 +1,6 @@
-# [data::loss]
+
+![](./game/assets/logos/game-banner.png)
+
 [![Build](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/build.yml/badge.svg)](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/build.yml)
 [![Clippy check](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/clippy.yml/badge.svg)](https://github.com/Ewpratten/ludum-dare-49/actions/workflows/clippy.yml)
 [![Ludum Dare 49](https://img.shields.io/badge/Ludum%20Dare-49-orange)](https://ldjam.com/events/ludum-dare/49/$261521)
