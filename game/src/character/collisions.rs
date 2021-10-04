@@ -13,6 +13,7 @@ pub const GRAVITY_PPS: f32 = 2.0;
 pub fn modify_player_based_on_forces(
     player: &mut MainCharacter,
     colliders: &Vec<Rectangle>,
+    killers: &Vec<Rectangle>,
     level_height_offset: f32,
 ) -> Result<(), ()> {
     trace!("Player state: {:?}", player.current_state);
@@ -25,7 +26,7 @@ pub fn modify_player_based_on_forces(
     let predicted_player_position = player.position + player.velocity;
 
     // Calculate a bounding rect around the player both now, and one frame in the future
-    let mut player_rect = Rectangle::new(
+    let player_rect = Rectangle::new(
         predicted_player_position.x - (player.size.x / 2.0),
         predicted_player_position.y - (player.size.x / 2.0),
         player.size.x,
@@ -45,6 +46,15 @@ pub fn modify_player_based_on_forces(
             translated_rect.y += level_height_offset;
             translated_rect.x += WORLD_LEVEL_X_OFFSET;
             translated_rect.check_collision_recs(&player_rect)
+                || translated_rect.check_collision_recs(&predicted_player_rect)
+        })
+    };
+    let check_player_colliding_with_killers = || {
+        killers.iter().any(|rect| {
+            let mut translated_rect = rect.clone();
+            translated_rect.y += level_height_offset;
+            translated_rect.x += WORLD_LEVEL_X_OFFSET;
+            translated_rect.check_collision_recs(&player_rect.clone())
                 || translated_rect.check_collision_recs(&predicted_player_rect)
         })
     };
@@ -76,10 +86,11 @@ pub fn modify_player_based_on_forces(
             return player.update_player(
                 Some(CharacterState::Running),
                 colliders,
+                killers,
                 level_height_offset,
             );
         }
-    }else if player.current_state == CharacterState::Running {
+    } else if player.current_state == CharacterState::Running {
         player.override_state(CharacterState::Jumping);
     }
 
@@ -87,22 +98,27 @@ pub fn modify_player_based_on_forces(
     player.position += player.velocity;
 
     // Re-calculate the player rect
-    player_rect = Rectangle::new(
+    let player_rect = Rectangle::new(
         player.position.x - (player.size.x / 2.0),
         player.position.y - (player.size.x / 2.0),
         player.size.x,
         player.size.y,
     );
 
-    if player.position.y > 50.0 || colliders.iter().any(|rect| {
-        let mut translated_rect = rect.clone();
-        translated_rect.y += level_height_offset;
-        translated_rect.x += WORLD_LEVEL_X_OFFSET;
-        translated_rect.check_collision_recs(&player_rect)
-    }) {
+    if player.position.y > 50.0
+        || colliders.iter().any(|rect| {
+            let mut translated_rect = rect.clone();
+            translated_rect.y += level_height_offset;
+            translated_rect.x += WORLD_LEVEL_X_OFFSET;
+            translated_rect.check_collision_recs(&player_rect)
+        })
+    {
         return Err(());
     }
 
+    if check_player_colliding_with_killers() {
+        return Err(());
+    }
 
     Ok(())
 }

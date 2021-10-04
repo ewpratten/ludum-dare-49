@@ -75,6 +75,7 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         let _ = self.player.update_player(
             Some(CharacterState::Running),
             &cur_level.colliders,
+            &cur_level.zones.kill,
             -cur_level.platform_tex.height as f32,
         );
 
@@ -132,7 +133,6 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
 
         // Render the HUD
         self.render_screen_space(&mut renderer, &context.config);
-
 
         // Check if the player won
         let cur_level = self.levels.get(context.current_level).unwrap();
