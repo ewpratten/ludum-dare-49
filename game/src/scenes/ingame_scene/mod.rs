@@ -102,6 +102,10 @@ impl Action<Scenes, ScreenError, GameContext> for InGameScreen {
         puffin::profile_function!();
         trace!("execute() called on InGameScreen");
 
+        if self.player.position.y < -1200.0{
+            return Ok(ActionFlag::SwitchState(Scenes::CheaterScreen));
+        }
+
         if self.current_level_idx != context.current_level {
             self.current_level_idx = context.current_level;
             // self.level_switch_timestamp = Utc::now();
