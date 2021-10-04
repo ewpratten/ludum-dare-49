@@ -13,7 +13,7 @@ All development documentation has been moved to [`DEVELOPERS.md`](./DEVELOPERS.m
 
 ## The Team
 
-This game is developed by a team of 6 students from *Sheridan College* and *Trent University*.
+This game is developed by a team of 8 students from *Sheridan College* and *Trent University*.
 
 - [**Evan Pratten**](https://github.com/ewpratten)
   - Team lead
