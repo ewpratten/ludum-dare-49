@@ -64,7 +64,11 @@ impl Action<Scenes, ScreenError, GameContext> for DeathScreen {
         let elapsed = Utc::now() - context.level_start_time;
         self.timer_value = format!("{:02}:{:02}", elapsed.num_minutes(), elapsed.num_seconds() % 60);
 
-        if self.is_retry_pressed {
+        if self.is_retry_pressed ||
+        context
+            .renderer
+            .borrow_mut()
+            .is_key_pressed(KeyboardKey::KEY_SPACE){
             context
                 .flag_send
                 .send(Some(ControlFlag::SoundTrigger("button-press".to_string())))
