@@ -11,6 +11,14 @@
 
 This game was written purely in [Rust](https://www.rust-lang.org/), and interfaces with bindings to the [`raylib`](https://raylib.com) graphics library. For half the team, this has been their first experience with Rust. The other half have extensive experience in the language.
 
+## Reviews
+
+> Why would you make this game? Why would you do this to another person? Not everyone chose violence for this game jam. There was a game about a kobold making inventions out of junk to buy a nice rock. There was a physics game about mixing colored beads to make new colors. I saved some pirates from a dragon and some parrots in one game. This game took all my ideas of space and time and called them cringe. I don’t know what pit of hell you came from, but I hope you’re happy. 10/10. - [DragonSheep](https://ldjam.com/users/dragonsheep)
+
+> ... Overall this is a great game, the art and music is awesome, and there’s a good dose of humor and sass to the game. Awesome job!! - [lukeoco1234](https://ldjam.com/users/lukeoco1234)
+
+> Great game, really liked the aesthetic, it takes what would be an already cool reflex based autorun game and enhances is it with unique challenges in the levels. - [AidanV03](https://ldjam.com/users/aidanv03)
+
 ## The Team
 
 This game was developed by a team of 9 students from *Sheridan College* and *Trent University*.
