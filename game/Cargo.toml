@@ -20,7 +20,7 @@ raylib = { version = "3.5", git = "https://github.com/ewpratten/raylib-rs", rev 
     "serde"
 ] }
 puffin = "0.9"
-puffin_http = "0.6"
+puffin_http = "0.7"
 dirty-fsm = "^0.2.2"
 num-traits = "0.2"
 sentry = "0.23"
