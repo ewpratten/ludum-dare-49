@@ -36,7 +36,7 @@ async-trait = "0.1.51"
 webbrowser = "0.5"
 
 [dev-dependencies]
-puffin_viewer = "0.6"
+puffin_viewer = "0.7"
 
 [build-dependencies]
 vergen = "5"
